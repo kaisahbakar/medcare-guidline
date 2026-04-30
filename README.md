@@ -2,7 +2,7 @@
 
 A modern, platform for managing and reading medical guidelines. This system provides a streamlined experience for both medical professionals reading guidelines and administrators managing them.
 
-## 🚀 Features
+##  Features
 
 ### Public Portal
 - **Guideline Reader:** Intuitive interface for reading medical manuals with a structured sidebar for easy navigation.
