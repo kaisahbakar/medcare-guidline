@@ -1,16 +1,81 @@
-# React + Vite
+# MedCare Guideline System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, platform for managing and reading medical guidelines. This system provides a streamlined experience for both medical professionals reading guidelines and administrators managing them.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Public Portal
+- **Guideline Reader:** Intuitive interface for reading medical manuals with a structured sidebar for easy navigation.
+- **Categorization:** Browse guidelines by Guide Type (e.g., Clinical, Administrative) and Category.
+- **Search & Filter:** Quickly find relevant guidelines.
+- **Dark Mode:** Support for both light and dark themes for comfortable reading in any environment.
 
-## React Compiler
+### Administrative Portal
+- **Admin Dashboard:** Centralized view of all manuals, categories, and guide types.
+- **Manual Editor:** A powerful rich-text editor (powered by Tiptap) for creating and editing detailed medical manuals.
+- **Organization Management:** Create and manage Guide Types and Categories to keep information structured.
+- **Status Tracking:** Manage the lifecycle of manuals (Draft, Published, etc.).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠 Tech Stack
 
-## Expanding the ESLint configuration
+- **Frontend:** [React 19](https://react.dev/)
+- **Build Tool:** [Vite](https://vitejs.dev/)
+- **Backend/Database:** [Supabase](https://supabase.com/) (PostgreSQL + Authentication)
+- **Data Fetching:** [TanStack Query (React Query)](https://tanstack.com/query/latest)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Rich Text Editor:** [Tiptap](https://tiptap.dev/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **Routing:** [React Router 7](https://reactrouter.com/)
+- **Drag & Drop:** [dnd-kit](https://dndkit.com/)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🏁 Getting Started
+
+### Prerequisites
+- Node.js (Latest LTS recommended)
+- npm or yarn
+- A Supabase project
+
+### Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository-url>
+    cd medcare-guidline-system
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Set up environment variables:**
+    Create a `.env` file in the root directory and add your Supabase credentials:
+    ```env
+    VITE_SUPABASE_URL=your_supabase_project_url
+    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
+
+4.  **Database Setup:**
+    Use the provided `supabase/seed.sql` to initialize your database schema and seed it with initial data.
+
+5.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+
+## 📂 Project Structure
+
+- `src/components`: Reusable UI components, layouts, and feature-specific blocks.
+  - `ui`: Base UI components (Button, Input, Card, etc.).
+  - `admin`: Layouts and components for the admin portal.
+  - `public`: Layouts and components for the public portal.
+  - `editor`: Specialized components for the manual editor.
+  - `reader`: Specialized components for the manual reader.
+- `src/lib`: Supabase client and TanStack Query hooks.
+- `src/pages`: Main page components for both public and admin routes.
+- `src/routes`: Application routing configuration.
+- `supabase`: Database scripts and configuration.
+
+## 📄 License
+
+This project is private and intended for internal use.
