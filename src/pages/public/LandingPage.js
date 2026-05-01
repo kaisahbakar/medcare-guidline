@@ -12,8 +12,7 @@ function LandingPage() {
     if (!Array.isArray(allCategoriesQuery.data)) return 0
 
     return allCategoriesQuery.data.filter((category) => {
-      const foreignKey = category.user_guide_type_id ?? category.guide_type_id
-      return foreignKey === guideTypeId
+      return category.guide_type_id === guideTypeId
     }).length
   }
 

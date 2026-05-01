@@ -1,13 +1,7 @@
 import AppRoutes from './routes/AppRoutes.js'
-import ModeToggleButton from './components/ui/ModeToggleButton'
 
 function App() {
-  return (
-    <>
-      <ModeToggleButton />
-      <AppRoutes />
-    </>
-  )
+  return <AppRoutes />
 }
 
 export default App

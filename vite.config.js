@@ -15,5 +15,12 @@ function transformJsxInJs() {
 
 // https://vite.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    rolldownOptions: {
+      moduleTypes: {
+        '.js': 'jsx',
+      },
+    },
+  },
   plugins: [transformJsxInJs(), react({ include: /\.[jt]sx?$/ }), tailwindcss()],
 })

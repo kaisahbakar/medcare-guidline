@@ -1,6 +1,7 @@
 import { ChevronLeft, Home } from 'lucide-react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
+import ModeToggleButton from '../ui/ModeToggleButton'
 
 const navItems = [
   { to: '/', label: 'Landing', icon: Home, end: true },
@@ -42,6 +43,10 @@ function PublicLayout() {
               </NavLink>
             ))}
           </nav>
+
+          <div className="mt-4 border-t border-slate-200 pt-3">
+            <ModeToggleButton />
+          </div>
         </aside>
 
         <div>

@@ -1,1 +1,28 @@
 @import "tailwindcss";
+
+/* ── TipTap editor base styles ───────────────────────────────────────────── */
+
+.ProseMirror {
+  outline: none;
+}
+
+/* Placeholder text for empty nodes */
+.ProseMirror p.is-editor-empty:first-child::before,
+.ProseMirror h1.is-editor-empty:first-child::before,
+.ProseMirror h2.is-editor-empty:first-child::before,
+.ProseMirror h3.is-editor-empty:first-child::before {
+  color: #94a3b8;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Block-level empty node placeholders */
+.ProseMirror .is-empty::before {
+  color: #94a3b8;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

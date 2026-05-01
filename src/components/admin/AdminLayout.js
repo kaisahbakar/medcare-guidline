@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 import { BookOpen, FolderOpen, LayoutDashboard, Tag } from 'lucide-react'
 import { isAdmin } from '../../lib/auth'
 import clsx from 'clsx'
+import ModeToggleButton from '../ui/ModeToggleButton'
 
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -51,7 +52,8 @@ function AdminLayout() {
           ))}
         </nav>
 
-        <div className="mt-auto border-t border-slate-200 p-3">
+        <div className="mt-auto space-y-2 border-t border-slate-200 p-3">
+          <ModeToggleButton />
           <Link
             to="/"
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-500 hover:bg-slate-50 hover:text-slate-700"

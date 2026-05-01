@@ -38,7 +38,7 @@ function formatDate(iso) {
 }
 
 function getCategoryGuideTypeId(category) {
-  return category?.user_guide_type_id ?? category?.guide_type_id ?? null
+  return category?.guide_type_id ?? null
 }
 
 // ── Create manual modal ───────────────────────────────────────────────────────

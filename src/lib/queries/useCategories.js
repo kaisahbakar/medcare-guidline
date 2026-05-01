@@ -5,29 +5,14 @@ export function useCategoriesByGuideType(guideTypeId) {
   return useQuery({
     queryKey: ['categories', 'by-guide-type', guideTypeId],
     queryFn: async () => {
-      const primaryQuery = await supabase
+      const { data, error } = await supabase
         .from('category')
         .select('*')
-        .eq('user_guide_type_id', guideTypeId)
+        .eq('guide_type_id', guideTypeId)
         .order('name')
 
-      if (!primaryQuery.error) {
-        return primaryQuery.data
-      }
-
-      // Backward compatibility for schemas that use guide_type_id instead.
-      if (primaryQuery.error.code === '42703') {
-        const fallbackQuery = await supabase
-          .from('category')
-          .select('*')
-          .eq('guide_type_id', guideTypeId)
-          .order('name')
-
-        if (fallbackQuery.error) throw fallbackQuery.error
-        return fallbackQuery.data
-      }
-
-      throw primaryQuery.error
+      if (error) throw error
+      return data
     },
     enabled: !!guideTypeId,
   })

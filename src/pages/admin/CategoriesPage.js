@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -25,8 +25,7 @@ function useCategoriesAdmin() {
 }
 
 function getGuideTypeId(category) {
-  // Handle both FK column name variants
-  return category?.user_guide_type_id ?? category?.guide_type_id ?? null
+  return category?.guide_type_id ?? null
 }
 
 function formatDate(iso) {
@@ -44,10 +43,20 @@ function CategoryFormModal({ open, onClose, initial, guideTypes }) {
   const qc = useQueryClient()
   const isEdit = !!initial
 
-  const [form, setForm] = useState(() => ({
+  const getInitialForm = () => ({
     name: initial?.name ?? '',
     guide_type_id: getGuideTypeId(initial) ?? '',
-  }))
+  })
+
+  const [form, setForm] = useState(getInitialForm)
+
+  useEffect(() => {
+    if (!open) {
+      setForm({ name: '', guide_type_id: '' })
+      return
+    }
+    setForm(getInitialForm())
+  }, [open, initial])
 
   function set(field) {
     return (e) => setForm((f) => ({ ...f, [field]: e.target.value }))
@@ -57,7 +66,7 @@ function CategoryFormModal({ open, onClose, initial, guideTypes }) {
     mutationFn: async (values) => {
       const payload = {
         name: values.name,
-        user_guide_type_id: values.guide_type_id,
+        guide_type_id: values.guide_type_id,
       }
       if (isEdit) {
         const { error } = await supabase
