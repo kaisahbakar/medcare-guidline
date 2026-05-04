@@ -14,7 +14,7 @@ INSERT INTO user_guide_type (id, name, created_at) VALUES
 -- ---------------------------------------------------------------
 -- 2. category  (2 per guide type = 6 total)
 -- ---------------------------------------------------------------
-INSERT INTO category (id, user_guide_type_id, name, created_at) VALUES
+INSERT INTO category (id, guide_type_id, name, created_at) VALUES
   -- Patient Guide
   ('22222222-0000-0000-0000-000000000001', '11111111-0000-0000-0000-000000000001', 'Getting Started',   now()),
   ('22222222-0000-0000-0000-000000000002', '11111111-0000-0000-0000-000000000001', 'Appointments',      now()),
@@ -184,6 +184,6 @@ INSERT INTO manual_block (id, layout_row_id, column_index, display_order, block_
 -- ---------------------------------------------------------------
 -- 6. manual_version  (one initial version per manual)
 -- ---------------------------------------------------------------
-INSERT INTO manual_version (id, manual_id, version_number, created_at) VALUES
+INSERT INTO manual_version (id, manual_id, version_number, updated_at) VALUES
   ('66666666-0000-0000-0000-000000000001', '33333333-0000-0000-0000-000000000001', 1, now()),
   ('66666666-0000-0000-0000-000000000002', '33333333-0000-0000-0000-000000000002', 1, now());

@@ -398,8 +398,8 @@ function ManualListPage() {
       {isError && <p className="text-sm text-red-600">{errorMsg}</p>}
 
       {!isLoading && !isError && (
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+          <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                 <th className="px-5 py-3">Title</th>

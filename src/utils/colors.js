@@ -1,23 +1,36 @@
+/**
+ * Text and background presets are independent: pick any text swatch with any background swatch.
+ * Same label name is only a visual family (e.g. “Green” text vs “Green” background tint).
+ */
+
 export const TEXT_COLORS = [
   { label: 'Default', value: null },
-  { label: 'Dark', value: '#1e293b' },
-  { label: 'Red', value: '#dc2626' },
-  { label: 'Blue', value: '#2563eb' },
-  { label: 'Green', value: '#16a34a' },
-  { label: 'Purple', value: '#9333ea' },
-  { label: 'Amber', value: '#d97706' },
-  { label: 'Pink', value: '#db2777' },
-  { label: 'Teal', value: '#0891b2' },
+  { label: 'Green', value: '#166534' },
+  { label: 'Emerald', value: '#065F46' },
+  { label: 'Blue', value: '#1D4ED8' },
+  { label: 'Sky Blue', value: '#0369A1' },
+  { label: 'Purple', value: '#6B21A8' },
+  { label: 'Violet', value: '#5B21B6' },
+  { label: 'Red', value: '#B91C1C' },
+  { label: 'Rose', value: '#9F1239' },
+  { label: 'Orange', value: '#C2410C' },
+  { label: 'Amber', value: '#B45309' },
+  { label: 'Yellow', value: '#854D0E' },
+  { label: 'Neutral Gray', value: '#374151' },
 ]
 
 export const BACKGROUND_COLORS = [
   { label: 'Default', value: null },
-  { label: 'Yellow', value: '#fef9c3' },
-  { label: 'Red', value: '#fee2e2' },
-  { label: 'Blue', value: '#dbeafe' },
-  { label: 'Green', value: '#dcfce7' },
-  { label: 'Purple', value: '#f3e8ff' },
-  { label: 'Amber', value: '#fef3c7' },
-  { label: 'Pink', value: '#fce7f3' },
-  { label: 'Teal', value: '#cffafe' },
+  { label: 'Green', value: '#DCFCE7' },
+  { label: 'Emerald', value: '#D1FAE5' },
+  { label: 'Blue', value: '#DBEAFE' },
+  { label: 'Sky Blue', value: '#E0F2FE' },
+  { label: 'Purple', value: '#EDE9FE' },
+  { label: 'Violet', value: '#DDD6FE' },
+  { label: 'Red', value: '#FEE2E2' },
+  { label: 'Rose', value: '#FFE4E6' },
+  { label: 'Orange', value: '#FFEDD5' },
+  { label: 'Amber', value: '#FEF3C7' },
+  { label: 'Yellow', value: '#FEF9C3' },
+  { label: 'Neutral Gray', value: '#F3F4F6' },
 ]

@@ -1,28 +1,65 @@
 @import "tailwindcss";
 
+/* ── Page fade-in ─────────────────────────────────────────────────────────── */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in-up 0.25s ease-out both;
+}
+
 /* ── TipTap editor base styles ───────────────────────────────────────────── */
 
 .ProseMirror {
   outline: none;
 }
 
-/* Placeholder text for empty nodes */
+/* One block = one visual block: no default paragraph/heading margins stacking “extra” lines */
+.ProseMirror p,
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3 {
+  margin: 0;
+  position: relative;
+}
+
+/*
+ * Do not use display:none on .ProseMirror-trailingBreak — it fights ProseMirror’s DOM sync
+ * and can cause extra hard breaks / odd wrapping while typing.
+ */
+
+/* Placeholder: avoid float (can make the first line of text wrap like a second line) */
 .ProseMirror p.is-editor-empty:first-child::before,
 .ProseMirror h1.is-editor-empty:first-child::before,
 .ProseMirror h2.is-editor-empty:first-child::before,
 .ProseMirror h3.is-editor-empty:first-child::before {
   color: #94a3b8;
   content: attr(data-placeholder);
-  float: left;
-  height: 0;
   pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 /* Block-level empty node placeholders */
+.ProseMirror .is-empty {
+  position: relative;
+}
+
 .ProseMirror .is-empty::before {
   color: #94a3b8;
   content: attr(data-placeholder);
-  float: left;
-  height: 0;
   pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 0;
 }

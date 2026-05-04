@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../supabase'
+import {
+  getColumnWidthFrMap,
+  isMissingColumnError,
+  removeColumnWidthFrLocal,
+  setColumnWidthFrLocal,
+} from '../../utils/columnWidthStorage'
 
 /**
  * Fetches a manual with its full block tree in one query function.
@@ -50,6 +56,8 @@ export function useManualContent(manualId) {
         return { manual, rows: [] }
       }
 
+      const localColumnFr = getColumnWidthFrMap(manualId)
+
       const rowIds = rows.map((r) => r.id)
 
       // 3. Fetch all blocks for those rows in one round-trip
@@ -83,7 +91,12 @@ export function useManualContent(manualId) {
           blocks: rowBlocks[i] ?? [],
         }))
 
-        return { ...row, columns }
+        const column_width_fr =
+          row.column_width_fr !== undefined
+            ? row.column_width_fr
+            : localColumnFr[row.id] ?? localColumnFr[String(row.id)] ?? null
+
+        return { ...row, column_width_fr, columns }
       })
 
       return { manual, rows: hydratedRows }
@@ -149,7 +162,9 @@ export function useAddRow(manualId) {
 export function useUpdateRow(manualId) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ rowId, column_count, display_order }) => {
+    mutationFn: async (vars) => {
+      const { rowId, column_count, display_order, column_width_fr } = vars
+
       // If reducing column_count, move orphaned blocks to the last remaining column
       if (column_count !== undefined) {
         const { data: currentRow } = await supabase
@@ -192,26 +207,54 @@ export function useUpdateRow(manualId) {
       const updates = {}
       if (column_count !== undefined) updates.column_count = column_count
       if (display_order !== undefined) updates.display_order = display_order
+      if (column_width_fr !== undefined) updates.column_width_fr = column_width_fr
+
+      const widthOnly =
+        Object.keys(updates).length === 1 &&
+        updates.column_width_fr !== undefined &&
+        column_width_fr !== undefined
+
+      if (Object.keys(updates).length > 0) {
+        updates.updated_at = new Date().toISOString()
+      }
 
       const { error } = await supabase
         .from('layout_row')
         .update(updates)
         .eq('id', rowId)
-      if (error) throw error
+
+      if (error) {
+        if (widthOnly && isMissingColumnError(error)) {
+          setColumnWidthFrLocal(manualId, rowId, column_width_fr)
+          return vars
+        }
+        throw error
+      }
+
+      if (column_width_fr !== undefined || column_count !== undefined) {
+        removeColumnWidthFrLocal(manualId, rowId)
+      }
+
+      return vars
     },
-    onMutate: async ({ rowId, column_count }) => {
-      if (column_count === undefined) return
+    onMutate: async (vars) => {
+      const { rowId, column_count, column_width_fr } = vars
+      if (column_count === undefined && column_width_fr === undefined) return
 
       await qc.cancelQueries({ queryKey: ['manual-content', manualId] })
       const previous = qc.getQueryData(['manual-content', manualId])
 
-      if (previous) {
+      if (!previous) return { previous }
+
+      if (column_count !== undefined) {
+        const widthReset =
+          column_width_fr !== undefined ? column_width_fr : null
+
         const newRows = previous.rows.map((row) => {
           if (String(row.id) !== String(rowId)) return row
 
           const allBlocks = row.columns.flatMap((c) => c.blocks)
 
-          // Build new columns, moving dropped blocks into the last column
           const newColumns = Array.from({ length: column_count }, (_, i) => ({
             index: i,
             blocks: allBlocks.filter((b) => b.column_index === i),
@@ -225,9 +268,24 @@ export function useUpdateRow(manualId) {
             ]
           }
 
-          return { ...row, column_count, columns: newColumns }
+          return {
+            ...row,
+            column_count,
+            columns: newColumns,
+            column_width_fr: widthReset,
+          }
         })
 
+        qc.setQueryData(['manual-content', manualId], { ...previous, rows: newRows })
+        return { previous }
+      }
+
+      if (column_width_fr !== undefined) {
+        const newRows = previous.rows.map((row) =>
+          String(row.id) === String(rowId)
+            ? { ...row, column_width_fr }
+            : row,
+        )
         qc.setQueryData(['manual-content', manualId], { ...previous, rows: newRows })
       }
 
@@ -238,8 +296,10 @@ export function useUpdateRow(manualId) {
         qc.setQueryData(['manual-content', manualId], context.previous)
       }
     },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: ['manual-content', manualId] })
+    onSettled: (_data, error) => {
+      if (error) {
+        qc.invalidateQueries({ queryKey: ['manual-content', manualId] })
+      }
     },
   })
 }
@@ -302,7 +362,10 @@ export function useReorderRows(manualId) {
         rowIds.map((id, index) =>
           supabase
             .from('layout_row')
-            .update({ display_order: index + 1 })
+            .update({
+              display_order: index + 1,
+              updated_at: new Date().toISOString(),
+            })
             .eq('id', id),
         ),
       )
@@ -464,6 +527,15 @@ export function useUpdateBlock(manualId) {
         .update(fields)
         .eq('id', blockId)
       if (error) throw error
+
+      // Touch manual.updated_at so cross-tab stale detection works.
+      // Fire-and-forget — a failure here is non-critical.
+      supabase
+        .from('manual')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', manualId)
+        .then(() => {})
+
       return { blockId, ...fields }
     },
     onSuccess: (result) => {
@@ -557,6 +629,70 @@ export function useReorderBlocks(manualId) {
         qc.setQueryData(['manual-content', manualId], { ...previous, rows: newRows })
       }
 
+      return { previous }
+    },
+    onError: (_, __, context) => {
+      if (context?.previous) {
+        qc.setQueryData(['manual-content', manualId], context.previous)
+      }
+    },
+    onSettled: (_data, error) => {
+      if (error) {
+        qc.invalidateQueries({ queryKey: ['manual-content', manualId] })
+      }
+    },
+  })
+}
+
+/** Reorder blocks within a row, including moving between columns (column_index + display_order). */
+export function useReorderRowBlocks(manualId) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ rowId, columnLayouts }) => {
+      const tasks = []
+      columnLayouts.forEach((blockIds, columnIndex) => {
+        blockIds.forEach((id, order) => {
+          tasks.push(
+            supabase
+              .from('manual_block')
+              .update({ column_index: columnIndex, display_order: order + 1 })
+              .eq('id', id),
+          )
+        })
+      })
+      const results = await Promise.all(tasks)
+      for (const res of results) {
+        if (res.error) throw res.error
+      }
+    },
+    onMutate: async ({ rowId, columnLayouts }) => {
+      await qc.cancelQueries({ queryKey: ['manual-content', manualId] })
+      const previous = qc.getQueryData(['manual-content', manualId])
+      if (!previous) return { previous }
+
+      const blockMap = new Map()
+      for (const row of previous.rows) {
+        for (const col of row.columns) {
+          for (const b of col.blocks) {
+            blockMap.set(String(b.id), b)
+          }
+        }
+      }
+
+      const newRows = previous.rows.map((row) => {
+        if (String(row.id) !== String(rowId)) return row
+        const newColumns = columnLayouts.map((ids, columnIndex) => ({
+          index: columnIndex,
+          blocks: ids.map((id, i) => {
+            const b = blockMap.get(String(id))
+            if (!b) return null
+            return { ...b, column_index: columnIndex, display_order: i + 1 }
+          }).filter(Boolean),
+        }))
+        return { ...row, columns: newColumns }
+      })
+
+      qc.setQueryData(['manual-content', manualId], { ...previous, rows: newRows })
       return { previous }
     },
     onError: (_, __, context) => {

@@ -1,14 +1,22 @@
 import { useMemo, useRef, useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import { TextStyle, Color } from '@tiptap/extension-text-style'
 import Link from '@tiptap/extension-link'
+import { textStyleColorExtensions } from '../tiptapRichTextExtensions'
+import {
+  SingleBlockParagraph,
+  createBlockEmptyDeleteExtension,
+  initialSingleParagraphDoc,
+} from '../singleBlockTipTap'
 import Placeholder from '@tiptap/extension-placeholder'
 import { Extension } from '@tiptap/core'
 import clsx from 'clsx'
 import BlockToolbar from '../BlockToolbar'
 import SlashMenu from '../SlashMenu'
 import { EDITOR_BLOCK_TYPE_OPTIONS } from '../blockTypeOptions'
+import { useSaveStatus } from '../../../contexts/SaveStatusContext'
+
+const AUTOSAVE_DELAY = 800
 
 // ── Slash-command helpers ──────────────────────────────────────────────────────
 
@@ -24,7 +32,17 @@ function filterItems(query) {
 
 // ── ParagraphBlock ─────────────────────────────────────────────────────────────
 
-function ParagraphBlock({ block, onUpdate, onChangeType, onFocusChange }) {
+function ParagraphBlock({ block, onUpdate, onChangeType, onFocusChange, onDeleteEmptyBlock }) {
+  const { notifyChange } = useSaveStatus()
+  const saveTimer = useRef(null)
+  const onDeleteRef = useRef(onDeleteEmptyBlock)
+  onDeleteRef.current = onDeleteEmptyBlock
+
+  const blockEmptyDelete = useMemo(
+    () => createBlockEmptyDeleteExtension(() => onDeleteRef.current?.()),
+    [],
+  )
+
   const [slash, setSlash] = useState({
     open: false,
     query: '',
@@ -55,6 +73,7 @@ function ParagraphBlock({ block, onUpdate, onChangeType, onFocusChange }) {
     () =>
       Extension.create({
         name: 'slashCommand',
+        priority: 1100,
         addKeyboardShortcuts() {
           return {
             ArrowUp: () => {
@@ -92,9 +111,15 @@ function ParagraphBlock({ block, onUpdate, onChangeType, onFocusChange }) {
 
   // ── Editor ────────────────────────────────────────────────────────────────
 
-  const initialContent = block.content_json?.type === 'doc'
-    ? block.content_json
-    : { type: 'doc', content: [{ type: 'paragraph' }] }
+  const initialContent = useMemo(
+    () =>
+      initialSingleParagraphDoc(block.content_json, {
+        type: 'doc',
+        content: [{ type: 'paragraph' }],
+      }),
+    // Collapse legacy multi-<p> JSON when the stored content changes
+    [block.id, JSON.stringify(block.content_json ?? null)],
+  )
 
   const editor = useEditor({
     extensions: [
@@ -106,18 +131,21 @@ function ParagraphBlock({ block, onUpdate, onChangeType, onFocusChange }) {
         blockquote: false,
         codeBlock: false,
         horizontalRule: false,
+        paragraph: false,
       }),
-      TextStyle,
-      Color,
+      SingleBlockParagraph,
+      ...textStyleColorExtensions,
       Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: 'Write something… or type / for commands' }),
       SlashExtension,
+      blockEmptyDelete,
     ],
     content: initialContent,
     onFocus: () => onFocusChange?.(true),
     onBlur: ({ editor }) => {
       onFocusChange?.(false)
       closeSlash()
+      clearTimeout(saveTimer.current)
       onUpdate({ content_json: editor.getJSON() })
     },
     onUpdate: ({ editor }) => {
@@ -139,11 +167,17 @@ function ParagraphBlock({ block, onUpdate, onChangeType, onFocusChange }) {
 
       // Update editorRef every update so handleSlashSelect has a current reference
       editorRef.current = editor
+
+      notifyChange()
+      clearTimeout(saveTimer.current)
+      saveTimer.current = setTimeout(() => {
+        onUpdate({ content_json: editor.getJSON() })
+      }, AUTOSAVE_DELAY)
     },
     onCreate: ({ editor }) => {
       editorRef.current = editor
     },
-  })
+  }, [block.id])
 
   const filteredItems = filterItems(slash.query)
 
@@ -152,7 +186,7 @@ function ParagraphBlock({ block, onUpdate, onChangeType, onFocusChange }) {
       <EditorContent
         editor={editor}
         className={clsx(
-          'leading-7 [&_.ProseMirror]:outline-none [&_.ProseMirror_strong]:font-semibold [&_.ProseMirror_em]:italic [&_.ProseMirror_u]:underline [&_.ProseMirror_s]:line-through [&_.ProseMirror_code]:rounded [&_.ProseMirror_code]:bg-slate-100 [&_.ProseMirror_code]:px-1 [&_.ProseMirror_code]:font-mono [&_.ProseMirror_code]:text-sm [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:text-blue-600',
+          'leading-normal [&_.ProseMirror]:outline-none [&_.ProseMirror_strong]:font-semibold [&_.ProseMirror_em]:italic [&_.ProseMirror_u]:underline [&_.ProseMirror_s]:line-through [&_.ProseMirror_code]:rounded [&_.ProseMirror_code]:bg-slate-100 [&_.ProseMirror_code]:px-1 [&_.ProseMirror_code]:font-mono [&_.ProseMirror_code]:text-sm [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:text-blue-600',
           block.text_color ? 'text-inherit' : 'text-slate-700',
         )}
       />

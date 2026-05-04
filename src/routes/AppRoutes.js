@@ -5,6 +5,8 @@ import CategoryPage from '../pages/public/CategoryPage'
 import GuideTypePage from '../pages/public/GuideTypePage'
 import LandingPage from '../pages/public/LandingPage'
 import ManualReaderPage from '../pages/public/ManualReaderPage'
+import SearchResultsPage from '../pages/public/SearchResultsPage'
+import NotFoundPage from '../pages/public/NotFoundPage'
 import PublicLayout from '../components/public/PublicLayout'
 
 // Admin layout + pages
@@ -14,6 +16,7 @@ import GuideTypesPage from '../pages/admin/GuideTypesPage'
 import CategoriesPage from '../pages/admin/CategoriesPage'
 import ManualListPage from '../pages/admin/ManualListPage'
 import ManualEditorPage from '../pages/admin/ManualEditorPage'
+import VersionHistoryPage from '../pages/admin/VersionHistoryPage'
 
 function AppRoutes() {
   return (
@@ -24,6 +27,8 @@ function AppRoutes() {
         <Route path="guide-type/:id" element={<GuideTypePage />} />
         <Route path="category/:id" element={<CategoryPage />} />
         <Route path="manual/:id" element={<ManualReaderPage />} />
+        <Route path="search" element={<SearchResultsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
 
       {/* Admin — nested under AdminLayout */}
@@ -33,6 +38,7 @@ function AppRoutes() {
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="manuals" element={<ManualListPage />} />
         <Route path="manuals/:id/edit" element={<ManualEditorPage />} />
+        <Route path="manuals/:id/versions" element={<VersionHistoryPage />} />
       </Route>
     </Routes>
   )

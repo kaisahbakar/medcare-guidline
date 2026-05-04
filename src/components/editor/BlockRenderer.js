@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { useSaveStatus } from '../../contexts/SaveStatusContext'
 import { ChevronDown, GripVertical, Palette, Trash2 } from 'lucide-react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -108,7 +109,11 @@ function ColorPicker({ block, onUpdate }) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        title="Text & background color"
+        title={
+          block.block_type === 'callout'
+            ? 'Block area: text & background (outside the callout panel)'
+            : 'Text & background color'
+        }
         className="flex items-center gap-1 rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
       >
         <Palette className="size-3.5" />
@@ -116,8 +121,17 @@ function ColorPicker({ block, onUpdate }) {
 
       {open && (
         <div className="absolute right-0 top-7 z-30 w-52 rounded-lg border border-slate-200 bg-white p-3 shadow-lg">
+          {block.block_type === 'callout' ? (
+            <p className="mb-2 text-[10px] leading-snug text-slate-400">
+              Colours here apply to the <span className="font-medium text-slate-600">whole block</span>{' '}
+              (margin area). For the bordered callout box, use{' '}
+              <span className="font-medium text-slate-600">Panel</span> inside the callout.
+            </p>
+          ) : null}
           {/* Text color */}
-          <p className="mb-1.5 text-xs font-medium text-slate-500">Text color</p>
+          <p className="mb-1.5 text-xs font-medium text-slate-500">
+            {block.block_type === 'callout' ? 'Block text' : 'Text color'}
+          </p>
           <div className="mb-3 flex flex-wrap gap-1.5">
             {TEXT_COLORS.map(({ label, value }) => (
               <button
@@ -139,7 +153,9 @@ function ColorPicker({ block, onUpdate }) {
           </div>
 
           {/* Background color */}
-          <p className="mb-1.5 text-xs font-medium text-slate-500">Background</p>
+          <p className="mb-1.5 text-xs font-medium text-slate-500">
+            {block.block_type === 'callout' ? 'Block background' : 'Background'}
+          </p>
           <div className="flex flex-wrap gap-1.5">
             {BACKGROUND_COLORS.map(({ label, value }) => (
               <button
@@ -167,8 +183,8 @@ function ColorPicker({ block, onUpdate }) {
 
 // ── Inner block content switcher ───────────────────────────────────────────────
 
-function BlockContent({ block, onUpdate, onChangeType, onFocusChange }) {
-  const props = { block, onUpdate, onChangeType, onFocusChange }
+function BlockContent({ block, onUpdate, onChangeType, onFocusChange, onDeleteEmptyBlock }) {
+  const props = { block, onUpdate, onChangeType, onFocusChange, onDeleteEmptyBlock }
 
   switch (block.block_type) {
     case 'heading_1':
@@ -201,6 +217,7 @@ function BlockRenderer({ block, manualId }) {
   const deleteBlock = useDeleteBlock(manualId)
   const changeType = useChangeBlockType(manualId)
   const [isEditing, setIsEditing] = useState(false)
+  const { notifySaving, notifySaved } = useSaveStatus()
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: block.id })
@@ -213,7 +230,11 @@ function BlockRenderer({ block, manualId }) {
   }
 
   function onUpdate(fields) {
-    updateBlock.mutate({ blockId: block.id, ...fields })
+    notifySaving()
+    updateBlock.mutate(
+      { blockId: block.id, ...fields },
+      { onSettled: notifySaved },
+    )
   }
 
   // Stable callback so child blocks don't re-render from prop identity changes
@@ -223,6 +244,10 @@ function BlockRenderer({ block, manualId }) {
     (newType) => changeType.mutate({ blockId: block.id, newType }),
     [block.id, changeType],
   )
+
+  const handleDeleteEmptyBlock = useCallback(() => {
+    deleteBlock.mutate(block.id)
+  }, [block.id, deleteBlock])
 
   return (
     <div
@@ -277,6 +302,7 @@ function BlockRenderer({ block, manualId }) {
         onUpdate={onUpdate}
         onChangeType={handleChangeType}
         onFocusChange={handleFocusChange}
+        onDeleteEmptyBlock={handleDeleteEmptyBlock}
       />
     </div>
   )
