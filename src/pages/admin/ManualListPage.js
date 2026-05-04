@@ -67,7 +67,9 @@ function CreateManualModal({ open, onClose, guideTypes, categories }) {
   }
 
   const filteredCategories = categories?.filter(
-    (c) => getCategoryGuideTypeId(c) === form.guide_type_id,
+    // guide_type_id is int4 in the DB; the select value is a string — use == for coercion
+    // eslint-disable-next-line eqeqeq
+    (c) => getCategoryGuideTypeId(c) == form.guide_type_id,
   ) ?? []
 
   const mutation = useMutation({
@@ -78,6 +80,7 @@ function CreateManualModal({ open, onClose, guideTypes, categories }) {
           title: values.title,
           summary: values.summary || null,
           category_id: values.category_id,
+          guide_type_id: values.guide_type_id,
           status: 'draft',
         })
         .select()

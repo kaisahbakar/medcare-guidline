@@ -17,8 +17,10 @@ function GuideTypePage() {
 
   function getPublishedManualCount(categoryId) {
     if (!Array.isArray(allManualsQuery.data)) return 0
+    // category_id may be int4 in DB; categoryId from the row object may differ in type
+    // eslint-disable-next-line eqeqeq
     return allManualsQuery.data.filter(
-      (m) => m.category_id === categoryId && m.status === 'published',
+      (m) => m.category_id == categoryId && m.status === 'published',
     ).length
   }
 

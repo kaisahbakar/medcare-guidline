@@ -10,7 +10,9 @@ function LandingPage() {
 
   function getCategoryCount(guideTypeId) {
     if (!Array.isArray(allCategoriesQuery.data)) return 0
-    return allCategoriesQuery.data.filter((c) => c.guide_type_id === guideTypeId).length
+    // guide_type_id is int4; guideTypeId from the row may differ in JS type
+    // eslint-disable-next-line eqeqeq
+    return allCategoriesQuery.data.filter((c) => c.guide_type_id == guideTypeId).length
   }
 
   return (
