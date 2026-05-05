@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Search, ShieldCheck } from 'lucide-react'
 import { isAdmin } from '../../lib/auth'
@@ -6,7 +6,6 @@ import { isAdmin } from '../../lib/auth'
 function PublicHeader() {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
-  const inputRef = useRef(null)
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -34,7 +33,6 @@ function PublicHeader() {
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
             <input
-              ref={inputRef}
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}

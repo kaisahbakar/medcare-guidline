@@ -1,7 +1,9 @@
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Search, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Search } from 'lucide-react'
 import { useManualSearch } from '../../lib/queries/useManualSearch'
 import { ListItemSkeleton } from '../../components/ui/Skeleton'
+import ErrorCard from '../../components/ui/ErrorCard'
+import EmptyState from '../../components/ui/EmptyState'
 
 // Wrap matches in <mark> without dangerouslySetInnerHTML
 function Highlight({ text, query }) {
@@ -68,12 +70,7 @@ function SearchResultsPage() {
 
       {/* No query */}
       {!q && (
-        <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-slate-200 bg-white py-16 text-center">
-          <Search className="size-10 text-slate-300" />
-          <p className="text-sm text-slate-500">
-            Enter a search term in the bar above to find manuals.
-          </p>
-        </div>
+        <EmptyState icon={Search} message="Enter a search term in the bar above to find manuals." />
       )}
 
       {/* Loading */}
@@ -87,36 +84,23 @@ function SearchResultsPage() {
 
       {/* Error */}
       {isError && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">
-          <p className="font-medium">Search failed</p>
-          <p className="mt-0.5 text-red-600">{error?.message || 'Unknown error'}</p>
-          <button
-            onClick={() => refetch()}
-            className="mt-3 flex items-center gap-1.5 text-xs font-medium text-red-700 underline hover:text-red-900"
-          >
-            <RefreshCw className="size-3" />
-            Try again
-          </button>
-        </div>
+        <ErrorCard title="Search failed" message={error?.message} onRetry={refetch} />
       )}
 
       {/* Empty */}
       {!isLoading && !isError && q && data?.length === 0 && (
-        <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-slate-200 bg-white py-16 text-center">
-          <Search className="size-10 text-slate-300" />
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-slate-700">
-              No manuals matched &ldquo;{q}&rdquo;
-            </p>
-            <p className="text-sm text-slate-400">Try different or fewer keywords.</p>
-          </div>
+        <EmptyState
+          icon={Search}
+          title={`No manuals matched "${q}"`}
+          message="Try different or fewer keywords."
+        >
           <Link
             to="/"
-            className="mt-1 text-sm font-medium text-slate-700 underline hover:text-slate-900"
+            className="text-sm font-medium text-slate-700 underline hover:text-slate-900"
           >
             Browse all guide types
           </Link>
-        </div>
+        </EmptyState>
       )}
 
       {/* Results */}

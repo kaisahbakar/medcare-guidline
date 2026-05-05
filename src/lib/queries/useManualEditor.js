@@ -34,22 +34,16 @@ export function useManualContent(manualId) {
   return useQuery({
     queryKey: ['manual-content', manualId],
     queryFn: async () => {
-      // 1. Fetch the manual itself
-      const { data: manual, error: manualError } = await supabase
-        .from('manual')
-        .select('*')
-        .eq('id', manualId)
-        .single()
+      // Fetch manual and rows in parallel — they are independent
+      const [
+        { data: manual, error: manualError },
+        { data: rows, error: rowsError },
+      ] = await Promise.all([
+        supabase.from('manual').select('*').eq('id', manualId).single(),
+        supabase.from('layout_row').select('*').eq('manual_id', manualId).order('display_order'),
+      ])
 
       if (manualError) throw manualError
-
-      // 2. Fetch all layout rows for this manual, ordered by display_order
-      const { data: rows, error: rowsError } = await supabase
-        .from('layout_row')
-        .select('*')
-        .eq('manual_id', manualId)
-        .order('display_order')
-
       if (rowsError) throw rowsError
 
       if (!rows.length) {
@@ -192,14 +186,16 @@ export function useUpdateRow(manualId) {
               .order('display_order', { ascending: false })
               .limit(1)
 
-            let nextOrder = (lastInTarget?.[0]?.display_order ?? 0) + 1
+            const baseOrder = (lastInTarget?.[0]?.display_order ?? 0) + 1
 
-            for (const block of orphanedBlocks) {
-              await supabase
-                .from('manual_block')
-                .update({ column_index: targetColumn, display_order: nextOrder++ })
-                .eq('id', block.id)
-            }
+            await Promise.all(
+              orphanedBlocks.map((block, i) =>
+                supabase
+                  .from('manual_block')
+                  .update({ column_index: targetColumn, display_order: baseOrder + i })
+                  .eq('id', block.id),
+              ),
+            )
           }
         }
       }
@@ -313,22 +309,14 @@ export function useDeleteRow(manualId) {
         .delete()
         .eq('layout_row_id', rowId)
 
-      let rowError = null
-      if (!blocksError) {
-        const res = await supabase.from('layout_row').delete().eq('id', rowId)
-        rowError = res.error
-      } else {
-        // e.g. RLS blocks direct block delete — try row delete (DB may CASCADE blocks)
-        const res = await supabase.from('layout_row').delete().eq('id', rowId)
-        rowError = res.error
-        if (rowError) {
-          throw new Error(
-            `${blocksError.message}. If blocks use FK without CASCADE, allow DELETE on manual_block or add ON DELETE CASCADE.`,
-          )
-        }
+      const { error: rowError } = await supabase.from('layout_row').delete().eq('id', rowId)
+      if (rowError) {
+        // If block delete also failed, surface both messages so the root cause is clear
+        const msg = blocksError
+          ? `${blocksError.message}. If blocks use FK without CASCADE, allow DELETE on manual_block or add ON DELETE CASCADE.`
+          : rowError.message
+        throw new Error(msg)
       }
-
-      if (rowError) throw rowError
     },
     onMutate: async (rowId) => {
       await qc.cancelQueries({ queryKey: ['manual-content', manualId] })
@@ -648,7 +636,7 @@ export function useReorderBlocks(manualId) {
 export function useReorderRowBlocks(manualId) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ rowId, columnLayouts }) => {
+    mutationFn: async ({ columnLayouts }) => {
       const tasks = []
       columnLayouts.forEach((blockIds, columnIndex) => {
         blockIds.forEach((id, order) => {

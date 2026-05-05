@@ -92,25 +92,22 @@ export function usePublishManual(manualId) {
 
       const nextVersion = (versions?.[0]?.version_number ?? 0) + 1
 
-      // Insert the version row (let the serial sequence assign id)
+      // Insert version row + update manual status — independent, run in parallel
       const now = new Date().toISOString()
-      const { error: insertErr } = await supabase
-        .from('manual_version')
-        .insert({
+      const [{ error: insertErr }, { error: updateErr }] = await Promise.all([
+        supabase.from('manual_version').insert({
           manual_id: manualId,
           version_number: nextVersion,
           content_snapshot: snapshot,
           updated_at: now,
-        })
+        }),
+        supabase
+          .from('manual')
+          .update({ status: 'published', updated_at: now })
+          .eq('id', manualId),
+      ])
 
       if (insertErr) throw insertErr
-
-      // Update manual status to published
-      const { error: updateErr } = await supabase
-        .from('manual')
-        .update({ status: 'published', updated_at: new Date().toISOString() })
-        .eq('id', manualId)
-
       if (updateErr) throw updateErr
 
       return nextVersion
@@ -177,26 +174,32 @@ export function useRestoreVersion(manualId) {
 
       if (rowDelErr) throw rowDelErr
 
-      // 4. Re-create rows and blocks from snapshot
-      for (const snapRow of snapshot.rows) {
-        const { data: newRow, error: rowInsErr } = await supabase
-          .from('layout_row')
-          .insert({
-            manual_id: manualId,
-            display_order: snapRow.display_order,
-            column_count: snapRow.column_count,
-            column_width_fr: snapRow.column_width_fr ?? null,
-          })
-          .select('id')
-          .single()
+      // 4. Re-create rows in parallel, then batch-insert all blocks in one call
+      const rowResults = await Promise.all(
+        snapshot.rows.map((snapRow) =>
+          supabase
+            .from('layout_row')
+            .insert({
+              manual_id: manualId,
+              display_order: snapRow.display_order,
+              column_count: snapRow.column_count,
+              column_width_fr: snapRow.column_width_fr ?? null,
+            })
+            .select('id')
+            .single(),
+        ),
+      )
 
-        if (rowInsErr) throw rowInsErr
+      const firstRowErr = rowResults.find((r) => r.error)
+      if (firstRowErr) throw firstRowErr.error
 
-        const blocks = []
+      const allBlocks = []
+      snapshot.rows.forEach((snapRow, i) => {
+        const newRowId = rowResults[i].data.id
         for (const col of snapRow.columns) {
           for (const block of col.blocks) {
-            blocks.push({
-              layout_row_id: newRow.id,
+            allBlocks.push({
+              layout_row_id: newRowId,
               column_index: col.column_index,
               display_order: block.display_order,
               block_type: block.block_type,
@@ -208,14 +211,11 @@ export function useRestoreVersion(manualId) {
             })
           }
         }
+      })
 
-        if (blocks.length) {
-          const { error: blockInsErr } = await supabase
-            .from('manual_block')
-            .insert(blocks)
-
-          if (blockInsErr) throw blockInsErr
-        }
+      if (allBlocks.length) {
+        const { error: blockInsErr } = await supabase.from('manual_block').insert(allBlocks)
+        if (blockInsErr) throw blockInsErr
       }
 
       // 5. Set manual.status to 'draft'

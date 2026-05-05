@@ -120,13 +120,11 @@ function VersionHistoryPage() {
   const listLoading = Boolean(manualId) && fetchStatus === 'fetching' && !isFetched
   const restoreVersion = useRestoreVersion(manualId)
 
-  const [previewVersionId, setPreviewVersionId] = useState(null)
-  const [previewVersionNumber, setPreviewVersionNumber] = useState(null)
+  const [previewVersion, setPreviewVersion] = useState(null) // { id, version_number }
   const [restoreTarget, setRestoreTarget] = useState(null) // { id, version_number }
 
   function openPreview(version) {
-    setPreviewVersionId(version.id)
-    setPreviewVersionNumber(version.version_number)
+    setPreviewVersion(version)
   }
 
   function openRestore(version) {
@@ -208,14 +206,11 @@ function VersionHistoryPage() {
       </div>
 
       {/* Modals */}
-      {previewVersionId && (
+      {previewVersion && (
         <SnapshotPreviewModal
-          versionId={previewVersionId}
-          versionNumber={previewVersionNumber}
-          onClose={() => {
-            setPreviewVersionId(null)
-            setPreviewVersionNumber(null)
-          }}
+          versionId={previewVersion.id}
+          versionNumber={previewVersion.version_number}
+          onClose={() => setPreviewVersion(null)}
         />
       )}
       {restoreTarget && (

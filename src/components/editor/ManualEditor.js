@@ -43,17 +43,14 @@ function useUpdateManualTitle(manualId) {
         .update({ title, updated_at: new Date().toISOString() })
         .eq('id', manualId)
       if (error) throw error
+      return title
     },
     onSuccess: (title) => {
       qc.setQueryData(['manual-content', manualId], (old) => {
         if (!old) return old
         return {
           ...old,
-          manual: {
-            ...old.manual,
-            title,
-            updated_at: new Date().toISOString(),
-          },
+          manual: { ...old.manual, title, updated_at: new Date().toISOString() },
         }
       })
       qc.invalidateQueries({ queryKey: ['manuals'] })
@@ -139,15 +136,19 @@ function ManualEditorInner({ manualId, data }) {
   const titleTimer = useRef(null)
   const lastSavedTitleRef = useRef(manual.title ?? '')
 
+  // Clear pending title autosave on unmount
+  useEffect(() => () => clearTimeout(titleTimer.current), [])
+
   // Keep draft in sync if manual data reloads (e.g. cross-tab stale refresh)
   useEffect(() => {
     setTitleDraft(manual.title ?? '')
     lastSavedTitleRef.current = manual.title ?? ''
   }, [manual.title])
 
-  // ── Stale banner ─────────────────────────────────────────────────────────────
-
   const [stale, setStale] = useState(false)
+  // Snapshot updated_at in a ref so the poll interval isn't restarted on every
+  // block save (which touches manual.updated_at in the cache).
+  const savedUpdatedAtRef = useRef(manual.updated_at)
 
   useEffect(() => {
     const id = setInterval(async () => {
@@ -159,14 +160,14 @@ function ManualEditorInner({ manualId, data }) {
           .single()
         if (!row) return
         const dbTs = new Date(row.updated_at).getTime()
-        const localTs = new Date(manual.updated_at).getTime()
+        const localTs = new Date(savedUpdatedAtRef.current).getTime()
         if (dbTs > localTs + STALE_THRESHOLD_MS) setStale(true)
       } catch {
         /* ignore */
       }
     }, STALE_POLL_INTERVAL)
     return () => clearInterval(id)
-  }, [manualId, manual.updated_at])
+  }, [manualId])
 
   // ── Title change handler (debounced) ──────────────────────────────────────────
 

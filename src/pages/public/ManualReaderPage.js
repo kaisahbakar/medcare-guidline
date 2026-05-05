@@ -3,7 +3,8 @@ import ManualReader from '../../components/reader/ManualReader'
 import ReaderSidebar from '../../components/reader/ReaderSidebar'
 import { useManual } from '../../lib/queries/useManuals'
 import { TextSkeleton } from '../../components/ui/Skeleton'
-import { ArrowLeft, RefreshCw } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
+import ErrorCard from '../../components/ui/ErrorCard'
 
 function ManualReaderPage() {
   const { id } = useParams()
@@ -39,19 +40,11 @@ function ManualReaderPage() {
   if (manualQuery.isError || !manualQuery.data) {
     return (
       <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 animate-fade-in">
-        <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">
-          <p className="font-medium">Failed to load manual</p>
-          <p className="mt-0.5 text-red-600">
-            {manualQuery.error?.message || 'Manual not found'}
-          </p>
-          <button
-            onClick={() => manualQuery.refetch()}
-            className="mt-3 flex items-center gap-1.5 text-xs font-medium text-red-700 underline hover:text-red-900"
-          >
-            <RefreshCw className="size-3" />
-            Try again
-          </button>
-        </div>
+        <ErrorCard
+          title="Failed to load manual"
+          message={manualQuery.error?.message ?? 'Manual not found'}
+          onRetry={() => manualQuery.refetch()}
+        />
       </main>
     )
   }

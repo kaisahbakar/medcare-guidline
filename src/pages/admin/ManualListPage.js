@@ -1,32 +1,17 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ExternalLink, Pencil, Plus, Trash2 } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useGuideTypes } from '../../lib/queries/useGuideTypes'
 import { useAllCategories } from '../../lib/queries/useCategories'
+import { useAllManuals } from '../../lib/queries/useManuals'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Textarea } from '../../components/ui/Textarea'
 import { Select } from '../../components/ui/Select'
 import { Modal } from '../../components/ui/Modal'
 import { StatusBadge } from '../../components/ui/StatusBadge'
-
-// ── Data ──────────────────────────────────────────────────────────────────────
-
-function useAllManualsAdmin() {
-  return useQuery({
-    queryKey: ['manuals'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('manual')
-        .select('*')
-        .order('title')
-      if (error) throw error
-      return data
-    },
-  })
-}
 
 function formatDate(iso) {
   if (!iso) return '—'
@@ -66,10 +51,8 @@ function CreateManualModal({ open, onClose, guideTypes, categories }) {
     }
   }
 
-  const filteredCategories = categories?.filter(
-    // guide_type_id is int4 in the DB; the select value is a string — use == for coercion
-    // eslint-disable-next-line eqeqeq
-    (c) => getCategoryGuideTypeId(c) == form.guide_type_id,
+  const filteredCategories = categories?.filter((c) =>
+    Number(getCategoryGuideTypeId(c)) === Number(form.guide_type_id),
   ) ?? []
 
   const mutation = useMutation({
@@ -99,8 +82,6 @@ function CreateManualModal({ open, onClose, guideTypes, categories }) {
     e.preventDefault()
     mutation.mutate(form)
   }
-
-  if (!open) return null
 
   return (
     <Modal open={open} onClose={onClose} title="Create Manual">
@@ -282,7 +263,7 @@ function StatusSelect({ manual }) {
 
 function ManualListPage() {
   const navigate = useNavigate()
-  const manualsQuery = useAllManualsAdmin()
+  const manualsQuery = useAllManuals()
   const guideTypesQuery = useGuideTypes()
   const categoriesQuery = useAllCategories()
 
@@ -294,11 +275,13 @@ function ManualListPage() {
   const [filterCategory, setFilterCategory] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
 
-  const categoryMap = Object.fromEntries(
-    (categoriesQuery.data ?? []).map((c) => [c.id, c]),
+  const categoryMap = useMemo(
+    () => Object.fromEntries((categoriesQuery.data ?? []).map((c) => [c.id, c])),
+    [categoriesQuery.data],
   )
-  const guideTypeMap = Object.fromEntries(
-    (guideTypesQuery.data ?? []).map((gt) => [gt.id, gt.name]),
+  const guideTypeMap = useMemo(
+    () => Object.fromEntries((guideTypesQuery.data ?? []).map((gt) => [gt.id, gt.name])),
+    [guideTypesQuery.data],
   )
 
   // Categories for the filter dropdown — if a guide type filter is active,

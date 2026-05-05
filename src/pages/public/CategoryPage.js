@@ -1,8 +1,10 @@
-import { BookOpen, ChevronRight, RefreshCw } from 'lucide-react'
+import { BookOpen, ChevronRight } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { useCategory } from '../../lib/queries/useCategories'
 import { usePublishedManualsByCategory } from '../../lib/queries/useManuals'
 import { ListItemSkeleton } from '../../components/ui/Skeleton'
+import ErrorCard from '../../components/ui/ErrorCard'
+import EmptyState from '../../components/ui/EmptyState'
 
 function CategoryPage() {
   const { id } = useParams()
@@ -32,17 +34,11 @@ function CategoryPage() {
 
       {/* Error */}
       {isError && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">
-          <p className="font-medium">Failed to load manuals</p>
-          <p className="mt-0.5 text-red-600">{error?.message || 'Unknown error'}</p>
-          <button
-            onClick={() => { categoryQuery.refetch(); manualsQuery.refetch() }}
-            className="mt-3 flex items-center gap-1.5 text-xs font-medium text-red-700 underline hover:text-red-900"
-          >
-            <RefreshCw className="size-3" />
-            Try again
-          </button>
-        </div>
+        <ErrorCard
+          title="Failed to load manuals"
+          message={error?.message}
+          onRetry={() => { categoryQuery.refetch(); manualsQuery.refetch() }}
+        />
       )}
 
       {/* Skeletons */}
@@ -56,15 +52,11 @@ function CategoryPage() {
 
       {/* Empty */}
       {!isLoading && !isError && (manualsQuery.data?.length ?? 0) === 0 && (
-        <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-slate-200 bg-white py-16 text-center">
-          <div className="flex size-12 items-center justify-center rounded-full bg-slate-100">
-            <BookOpen className="size-6 text-slate-400" />
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-slate-700">No published manuals yet</p>
-            <p className="text-sm text-slate-400">Check back soon or try another category.</p>
-          </div>
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="No published manuals yet"
+          message="Check back soon or try another category."
+        />
       )}
 
       {/* List */}

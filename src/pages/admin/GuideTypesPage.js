@@ -42,11 +42,6 @@ function GuideTypeFormModal({ open, onClose, initial }) {
 
   const [form, setForm] = useState(initial ?? empty)
 
-  // Reset form when modal opens
-  function handleOpen() {
-    setForm(initial ?? empty)
-  }
-
   function set(field) {
     return (e) => setForm((f) => ({ ...f, [field]: e.target.value }))
   }

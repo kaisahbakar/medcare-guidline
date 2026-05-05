@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { BookOpen, ChevronDown } from 'lucide-react'
 import { usePublishedManualsByCategory } from '../../lib/queries/useManuals'
 
-function ReaderSidebar({ categoryId, manualId }) {
+function ReaderSidebar({ categoryId }) {
   const { data, isLoading } = usePublishedManualsByCategory(categoryId)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -23,7 +23,7 @@ function ReaderSidebar({ categoryId, manualId }) {
             to={`/manual/${manual.id}`}
             className={({ isActive }) =>
               `rounded-lg px-3 py-2 text-sm transition duration-150 ${
-                isActive || manual.id === manualId
+                isActive
                   ? 'bg-slate-900 font-medium text-white'
                   : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
               }`
