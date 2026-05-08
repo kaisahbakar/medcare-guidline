@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertTriangle, ArrowLeft, History, Monitor, Plus } from 'lucide-react'
+import { MdWarning, MdArrowBack, MdVisibility, MdHistory, MdDesktopWindows, MdAdd, MdClose } from 'react-icons/md'
 import ManualReader from '../reader/ManualReader'
+import ReaderBlock from '../reader/ReaderBlock'
+import {
+  gridTemplateColumnsFromFractions,
+  normalizeColumnFractions,
+} from '../../utils/columnWidths'
 import {
   DndContext,
   PointerSensor,
@@ -103,6 +108,94 @@ function SaveIndicator() {
   )
 }
 
+// ── Preview modal ──────────────────────────────────────────────────────────────
+
+function PreviewModal({ manual, rows, onClose }) {
+  // Close on Escape
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  // Prevent body scroll while open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col bg-slate-100"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Manual preview"
+    >
+      {/* Preview top bar */}
+      <div className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 py-3 shadow-sm">
+        <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+          <MdVisibility className="size-4" />
+          Preview — what users see
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">
+            Draft · not yet published
+          </span>
+          <button
+            onClick={onClose}
+            className="flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:border-slate-300 hover:text-slate-900"
+          >
+            <MdClose className="size-3.5" />
+            Close preview
+          </button>
+        </div>
+      </div>
+
+      {/* Scrollable reader area */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-3xl px-6 py-10">
+          <article className="w-full space-y-8 rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+            <header className="space-y-2 border-b border-slate-100 pb-6">
+              <h1 className="text-2xl font-bold leading-tight text-slate-900 sm:text-3xl">
+                {manual.title || <span className="italic text-slate-400">Untitled</span>}
+              </h1>
+              {manual.summary && (
+                <p className="text-base leading-7 text-slate-500">{manual.summary}</p>
+              )}
+            </header>
+
+            {rows.length === 0 ? (
+              <p className="text-sm text-slate-400">This manual has no content yet.</p>
+            ) : (
+              rows.map((row) => (
+                <section
+                  key={row.id}
+                  className="grid gap-6"
+                  style={{
+                    gridTemplateColumns: gridTemplateColumnsFromFractions(
+                      normalizeColumnFractions(row.column_width_fr, row.column_count),
+                    ),
+                  }}
+                >
+                  {row.columns.map((column) => (
+                    <div key={`${row.id}-${column.index}`} className="space-y-4">
+                      {column.blocks.map((block) => (
+                        <ReaderBlock key={block.id} block={block} />
+                      ))}
+                    </div>
+                  ))}
+                </section>
+              ))
+            )}
+          </article>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Editor inner (needs SaveStatusContext) ────────────────────────────────────
 
 function ManualEditorInner({ manualId, data }) {
@@ -131,6 +224,8 @@ function ManualEditorInner({ manualId, data }) {
       },
     )
   }
+
+  const [showPreview, setShowPreview] = useState(false)
 
   const [titleDraft, setTitleDraft] = useState(manual.title ?? '')
   const titleTimer = useRef(null)
@@ -221,12 +316,20 @@ function ManualEditorInner({ manualId, data }) {
   const rowIds = rows.map((r) => r.id)
 
   return (
+    <>
+    {showPreview && (
+      <PreviewModal
+        manual={{ ...manual, title: titleDraft }}
+        rows={rows}
+        onClose={() => setShowPreview(false)}
+      />
+    )}
     <div className="flex min-h-screen flex-col bg-slate-50">
       {/* Stale banner */}
       {stale && (
         <div className="flex items-center justify-between bg-amber-50 px-6 py-2 text-sm text-amber-800 border-b border-amber-200">
           <span className="flex items-center gap-2">
-            <AlertTriangle className="size-4 shrink-0" />
+            <MdWarning className="size-4 shrink-0" />
             This page was updated in another tab. Reload to see the latest changes.
           </span>
           <button
@@ -245,7 +348,7 @@ function ManualEditorInner({ manualId, data }) {
             to="/admin/manuals"
             className="flex shrink-0 items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800"
           >
-            <ArrowLeft className="size-3.5" />
+            <MdArrowBack className="size-3.5" />
             Manuals
           </Link>
 
@@ -267,16 +370,23 @@ function ManualEditorInner({ manualId, data }) {
               to={`/admin/manuals/${manualId}/versions`}
               className="flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:border-slate-300 hover:text-slate-900"
             >
-              <History className="size-3.5" />
+              <MdHistory className="size-3.5" />
               Version History
             </Link>
+            <button
+              onClick={() => setShowPreview(true)}
+              className="flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              <MdVisibility className="size-3.5" />
+              Preview
+            </button>
             <Button
               variant="secondary"
               size="sm"
               onClick={() => addRow.mutate()}
               disabled={addRow.isPending}
             >
-              <Plus className="size-4" />
+              <MdAdd className="size-4" />
               Add Row
             </Button>
             <Button
@@ -314,7 +424,7 @@ function ManualEditorInner({ manualId, data }) {
               onClick={() => addRow.mutate()}
               disabled={addRow.isPending}
             >
-              <Plus className="size-4" />
+              <MdAdd className="size-4" />
               Add Row
             </Button>
           </div>
@@ -353,6 +463,7 @@ function ManualEditorInner({ manualId, data }) {
         )}
       </div>
     </div>
+    </>
   )
 }
 
@@ -377,7 +488,7 @@ function ManualEditor({ manualId }) {
     return (
       <div className="flex min-h-screen flex-col bg-slate-50">
         <div className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          <Monitor className="size-4 shrink-0" />
+          <MdDesktopWindows className="size-4 shrink-0" />
           Editing is desktop-only — showing read-only preview.
         </div>
         <div className="mx-auto w-full max-w-3xl px-4 py-8">

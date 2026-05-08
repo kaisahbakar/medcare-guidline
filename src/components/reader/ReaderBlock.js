@@ -2,7 +2,7 @@ import { generateHTML } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { TextStyle, Color, BackgroundColor } from '@tiptap/extension-text-style'
 import Link from '@tiptap/extension-link'
-import { Info, AlertTriangle, CheckCircle, Lightbulb, AlertCircle } from 'lucide-react'
+import { MdInfo, MdWarning, MdCheckCircle, MdLightbulb, MdError } from 'react-icons/md'
 import clsx from 'clsx'
 import { calloutPanelLeftAccent, getCalloutPanelColors } from '../../utils/calloutPanelMeta'
 
@@ -21,7 +21,13 @@ function renderTipTapHTML(content_json) {
 
 // ── Callout icon map ───────────────────────────────────────────────────────────
 
-const CALLOUT_ICONS = { Info, AlertTriangle, CheckCircle, Lightbulb, AlertCircle }
+const CALLOUT_ICONS = {
+  Info: MdInfo,
+  AlertTriangle: MdWarning,
+  CheckCircle: MdCheckCircle,
+  Lightbulb: MdLightbulb,
+  AlertCircle: MdError,
+}
 
 // ── Prose wrapper (TipTap HTML or legacy plain text) ──────────────────────────
 
@@ -129,7 +135,7 @@ function ReaderBlock({ block }) {
 
   if (block?.block_type === 'callout') {
     const iconName = block?.metadata_json?.icon ?? 'Info'
-    const Icon = CALLOUT_ICONS[iconName] ?? Info
+    const Icon = CALLOUT_ICONS[iconName] ?? MdInfo
     const panel = getCalloutPanelColors(block?.metadata_json)
     const hasPanelBg = Boolean(panel.background)
     const hasPanelText = Boolean(panel.text)

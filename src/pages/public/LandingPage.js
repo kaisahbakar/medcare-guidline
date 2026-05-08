@@ -1,4 +1,4 @@
-import { BookOpen, ChevronRight } from 'lucide-react'
+import { MdMenuBook, MdChevronRight } from 'react-icons/md'
 import { Link } from 'react-router-dom'
 import { useGuideTypes } from '../../lib/queries/useGuideTypes'
 import { useAllCategories } from '../../lib/queries/useCategories'
@@ -46,7 +46,7 @@ function LandingPage() {
 
       {/* Empty */}
       {!isLoading && !isError && (!data || data.length === 0) && (
-        <EmptyState icon={BookOpen} message="No guide types available yet." />
+        <EmptyState icon={MdMenuBook} message="No guide types available yet." />
       )}
 
       {/* Cards */}
@@ -69,7 +69,7 @@ function LandingPage() {
                     </p>
                   )}
                 </div>
-                <ChevronRight className="mt-0.5 size-4 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-600" />
+                <MdChevronRight className="mt-0.5 size-4 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-600" />
               </div>
               <p className="mt-4 text-xs font-medium text-slate-400">
                 {getCategoryCount(guideType.id)} categories

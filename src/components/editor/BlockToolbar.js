@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  Code,
-  Link2,
-  Link2Off,
-  Check,
-  Palette,
-  Highlighter,
-  Ban,
-} from 'lucide-react'
+  MdFormatBold,
+  MdFormatItalic,
+  MdFormatUnderlined,
+  MdFormatStrikethrough,
+  MdCode,
+  MdLink,
+  MdLinkOff,
+  MdCheck,
+  MdPalette,
+  MdHighlight,
+  MdBlock,
+} from 'react-icons/md'
 import clsx from 'clsx'
 import { TEXT_COLORS, BACKGROUND_COLORS } from '../../utils/colors'
 
@@ -230,7 +230,7 @@ function BlockToolbar({ editor }) {
       {linkMode ? (
         // ── Link input mode ──────────────────────────────────────────────────
         <div className="flex items-center gap-1 px-2 py-1">
-          <Link2 className="size-3.5 shrink-0 text-slate-400" />
+          <MdLink className="size-3.5 shrink-0 text-slate-400" />
           <input
             ref={linkInputRef}
             value={linkUrl}
@@ -247,7 +247,7 @@ function BlockToolbar({ editor }) {
             className="rounded p-0.5 text-green-600 hover:bg-green-50"
             title="Apply link"
           >
-            <Check className="size-3.5" />
+            <MdCheck className="size-3.5" />
           </button>
           {isLinkActive && (
             <button
@@ -255,7 +255,7 @@ function BlockToolbar({ editor }) {
               className="rounded p-0.5 text-red-400 hover:bg-red-50"
               title="Remove link"
             >
-              <Link2Off className="size-3.5" />
+              <MdLinkOff className="size-3.5" />
             </button>
           )}
         </div>
@@ -268,35 +268,35 @@ function BlockToolbar({ editor }) {
               active={editor.isActive('bold')}
               title="Bold (⌘B)"
             >
-              <Bold className="size-3.5" />
+              <MdFormatBold className="size-3.5" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleItalic().run()}
               active={editor.isActive('italic')}
               title="Italic (⌘I)"
             >
-              <Italic className="size-3.5" />
+              <MdFormatItalic className="size-3.5" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleUnderline().run()}
               active={editor.isActive('underline')}
               title="Underline (⌘U)"
             >
-              <Underline className="size-3.5" />
+              <MdFormatUnderlined className="size-3.5" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleStrike().run()}
               active={editor.isActive('strike')}
               title="Strikethrough"
             >
-              <Strikethrough className="size-3.5" />
+              <MdFormatStrikethrough className="size-3.5" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleCode().run()}
               active={editor.isActive('code')}
               title="Inline code"
             >
-              <Code className="size-3.5" />
+              <MdCode className="size-3.5" />
             </ToolbarButton>
           </div>
           <div className="flex items-center px-1 py-1">
@@ -309,7 +309,7 @@ function BlockToolbar({ editor }) {
               active={isLinkActive}
               title="Link (⌘K)"
             >
-              <Link2 className="size-3.5" />
+              <MdLink className="size-3.5" />
             </ToolbarButton>
           </div>
           {canInlineColor ? (
@@ -319,14 +319,14 @@ function BlockToolbar({ editor }) {
                 active={colorMenu === 'text' || hasTextColor}
                 title="Text color"
               >
-                <Palette className="size-3.5" />
+                <MdPalette className="size-3.5" />
               </ToolbarButton>
               <ToolbarButton
                 onClick={() => setColorMenu((m) => (m === 'bg' ? null : 'bg'))}
                 active={colorMenu === 'bg' || hasBgColor}
                 title="Highlight / background"
               >
-                <Highlighter className="size-3.5" />
+                <MdHighlight className="size-3.5" />
               </ToolbarButton>
               {colorMenu === 'text' && (
                 <div
@@ -373,7 +373,7 @@ function BlockToolbar({ editor }) {
                       className="ml-auto flex items-center gap-0.5 rounded px-1.5 py-1 text-xs text-slate-600 hover:bg-slate-100"
                       title="Remove text color"
                     >
-                      <Ban className="size-3" />
+                      <MdBlock className="size-3" />
                       Clear
                     </button>
                   </div>
@@ -424,7 +424,7 @@ function BlockToolbar({ editor }) {
                       className="ml-auto flex items-center gap-0.5 rounded px-1.5 py-1 text-xs text-slate-600 hover:bg-slate-100"
                       title="Remove highlight"
                     >
-                      <Ban className="size-3" />
+                      <MdBlock className="size-3" />
                       Clear
                     </button>
                   </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useSaveStatus } from '../../contexts/SaveStatusContext'
-import { ChevronDown, GripVertical, Palette, Trash2 } from 'lucide-react'
+import { MdExpandMore, MdDragIndicator, MdPalette, MdDelete } from 'react-icons/md'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import clsx from 'clsx'
@@ -60,7 +60,7 @@ function BlockTypePicker({ block, manualId }) {
         className="flex items-center gap-0.5 rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600 hover:bg-slate-200 disabled:opacity-50"
       >
         {BLOCK_LABELS[block.block_type] ?? block.block_type}
-        <ChevronDown className="size-3 opacity-70" />
+        <MdExpandMore className="size-3 opacity-70" />
       </button>
 
       {open && (
@@ -116,7 +116,7 @@ function ColorPicker({ block, onUpdate }) {
         }
         className="flex items-center gap-1 rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
       >
-        <Palette className="size-3.5" />
+        <MdPalette className="size-3.5" />
       </button>
 
       {open && (
@@ -275,7 +275,7 @@ function BlockRenderer({ block, manualId }) {
           className="cursor-grab rounded p-0.5 text-slate-300 hover:bg-slate-100 hover:text-slate-500 active:cursor-grabbing"
           aria-label="Drag to reorder block"
         >
-          <GripVertical className="size-3.5" />
+          <MdDragIndicator className="size-3.5" />
         </button>
 
         {/* Block type */}
@@ -292,7 +292,7 @@ function BlockRenderer({ block, manualId }) {
           className="rounded p-1 text-slate-300 hover:bg-red-50 hover:text-red-500"
           aria-label="Delete block"
         >
-          <Trash2 className="size-3.5" />
+          <MdDelete className="size-3.5" />
         </button>
       </div>
 

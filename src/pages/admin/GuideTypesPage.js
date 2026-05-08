@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { MdEdit, MdAdd, MdDelete } from 'react-icons/md'
 import { supabase } from '../../lib/supabase'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -183,7 +183,7 @@ function GuideTypesPage() {
           </p>
         </div>
         <Button onClick={() => setAddOpen(true)}>
-          <Plus className="size-4" />
+          <MdAdd className="size-4" />
           Add Guide Type
         </Button>
       </div>
@@ -225,7 +225,7 @@ function GuideTypesPage() {
                         onClick={() => setEditTarget(gt)}
                         aria-label="Edit"
                       >
-                        <Pencil className="size-3.5" />
+                        <MdEdit className="size-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -234,7 +234,7 @@ function GuideTypesPage() {
                         aria-label="Delete"
                         className="text-red-500 hover:bg-red-50 hover:text-red-600"
                       >
-                        <Trash2 className="size-3.5" />
+                        <MdDelete className="size-3.5" />
                       </Button>
                     </div>
                   </td>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { BookOpen, ChevronDown } from 'lucide-react'
+import { MdMenuBook, MdExpandMore } from 'react-icons/md'
 import { usePublishedManualsByCategory } from '../../lib/queries/useManuals'
 
 function ReaderSidebar({ categoryId }) {
@@ -45,10 +45,10 @@ function ReaderSidebar({ categoryId }) {
           className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700"
         >
           <span className="flex items-center gap-2">
-            <BookOpen className="size-4 text-slate-400" />
+            <MdMenuBook className="size-4 text-slate-400" />
             Other manuals in this category
           </span>
-          <ChevronDown
+          <MdExpandMore
             className={`size-4 text-slate-400 transition-transform ${mobileOpen ? 'rotate-180' : ''}`}
           />
         </button>

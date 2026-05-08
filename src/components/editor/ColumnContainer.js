@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useDroppable } from '@dnd-kit/core'
-import { Plus } from 'lucide-react'
+import { MdAdd } from 'react-icons/md'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import clsx from 'clsx'
 import { EDITOR_BLOCK_TYPE_OPTIONS } from './blockTypeOptions'
@@ -87,7 +87,7 @@ function AddBlockMenu({ onPick, disabled }) {
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-xs text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600 disabled:opacity-50"
       >
-        <Plus className="size-3" />
+        <MdAdd className="size-3" />
         Add block
       </button>
 

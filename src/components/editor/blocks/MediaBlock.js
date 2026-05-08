@@ -3,7 +3,7 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Link from '@tiptap/extension-link'
-import { ImageIcon, Upload, X } from 'lucide-react'
+import { MdImage, MdUpload, MdClose } from 'react-icons/md'
 import clsx from 'clsx'
 import { supabase } from '../../../lib/supabase'
 import { MANUAL_MEDIA_BUCKET } from '../../../lib/storage'
@@ -133,7 +133,7 @@ function MediaBlock({ block, onUpdate, onFocusChange, onDeleteEmptyBlock }) {
             className="absolute right-2 top-2 hidden rounded-full bg-black/60 p-1 text-white hover:bg-black/80 group-hover:flex"
             title="Remove image"
           >
-            <X className="size-3.5" />
+            <MdClose className="size-3.5" />
           </button>
         </div>
       ) : (
@@ -144,12 +144,12 @@ function MediaBlock({ block, onUpdate, onFocusChange, onDeleteEmptyBlock }) {
         >
           {uploading ? (
             <>
-              <Upload className="size-5 animate-pulse" />
+              <MdUpload className="size-5 animate-pulse" />
               <span className="text-sm">Uploading…</span>
             </>
           ) : (
             <>
-              <ImageIcon className="size-5" />
+              <MdImage className="size-5" />
               <span className="text-sm">Click to upload image</span>
               <span className="text-xs text-slate-300">PNG, JPG, GIF, WEBP</span>
             </>

@@ -3,7 +3,7 @@ import ManualReader from '../../components/reader/ManualReader'
 import ReaderSidebar from '../../components/reader/ReaderSidebar'
 import { useManual } from '../../lib/queries/useManuals'
 import { TextSkeleton } from '../../components/ui/Skeleton'
-import { ArrowLeft } from 'lucide-react'
+import { MdArrowBack } from 'react-icons/md'
 import ErrorCard from '../../components/ui/ErrorCard'
 
 function ManualReaderPage() {
@@ -16,7 +16,7 @@ function ManualReaderPage() {
       <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 animate-fade-in">
         <div className="flex flex-col gap-8 md:flex-row">
           {/* Sidebar skeleton */}
-          <div className="w-full shrink-0 md:w-56">
+          <div className="w-shrink-0 md:w-56">
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <div className="mb-3 h-3 w-16 animate-pulse rounded bg-slate-200" />
               <div className="space-y-2">
@@ -59,7 +59,7 @@ function ManualReaderPage() {
           onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800"
         >
-          <ArrowLeft className="size-4 shrink-0" />
+          <MdArrowBack className="size-4 shrink-0" />
           Back
         </button>
         {categoryId != null && categoryId !== '' && (

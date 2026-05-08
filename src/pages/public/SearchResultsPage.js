@@ -1,5 +1,5 @@
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Search } from 'lucide-react'
+import { MdArrowBack, MdSearch } from 'react-icons/md'
 import { useManualSearch } from '../../lib/queries/useManualSearch'
 import { ListItemSkeleton } from '../../components/ui/Skeleton'
 import ErrorCard from '../../components/ui/ErrorCard'
@@ -41,7 +41,7 @@ function SearchResultsPage() {
             onClick={() => navigate(-1)}
             className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800"
           >
-            <ArrowLeft className="size-4 shrink-0" />
+            <MdArrowBack className="size-4 shrink-0" />
             Back
           </button>
           <Link
@@ -70,7 +70,7 @@ function SearchResultsPage() {
 
       {/* No query */}
       {!q && (
-        <EmptyState icon={Search} message="Enter a search term in the bar above to find manuals." />
+        <EmptyState icon={MdSearch} message="Enter a search term in the bar above to find manuals." />
       )}
 
       {/* Loading */}
@@ -90,7 +90,7 @@ function SearchResultsPage() {
       {/* Empty */}
       {!isLoading && !isError && q && data?.length === 0 && (
         <EmptyState
-          icon={Search}
+          icon={MdSearch}
           title={`No manuals matched "${q}"`}
           message="Try different or fewer keywords."
         >

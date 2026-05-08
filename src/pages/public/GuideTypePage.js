@@ -1,4 +1,4 @@
-import { ChevronRight, FolderOpen } from 'lucide-react'
+import { MdChevronRight, MdFolderOpen } from 'react-icons/md'
 import { Link, useParams } from 'react-router-dom'
 import { useCategoriesByGuideType } from '../../lib/queries/useCategories'
 import { useGuideType } from '../../lib/queries/useGuideTypes'

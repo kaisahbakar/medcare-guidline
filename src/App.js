@@ -1,6 +1,6 @@
 import { Toaster } from 'sonner'
 import AppRoutes from './routes/AppRoutes.js'
-import ErrorBoundary from './components/ErrorBoundary.jsx'
+import ErrorBoundary from './components/ErrorBoundary.js'
 
 function App() {
   return (

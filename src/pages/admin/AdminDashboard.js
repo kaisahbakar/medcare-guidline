@@ -1,23 +1,23 @@
 import { Link } from 'react-router-dom'
-import { BookOpen, FolderOpen, Tag } from 'lucide-react'
+import { MdMenuBook, MdFolderOpen, MdLocalOffer } from 'react-icons/md'
 import { Card } from '../../components/ui/Card'
 
 const sections = [
   {
     to: '/admin/manuals',
-    icon: BookOpen,
+    icon: MdMenuBook,
     title: 'Manage Manuals',
     description: 'Create, edit, publish, and delete manuals across all guide types.',
   },
   {
     to: '/admin/guide-types',
-    icon: Tag,
+    icon: MdLocalOffer,
     title: 'Guide Types',
     description: 'Define the top-level guide types: Patient, Doctor, Nurse, etc.',
   },
   {
     to: '/admin/categories',
-    icon: FolderOpen,
+    icon: MdFolderOpen,
     title: 'Categories',
     description: 'Organise manuals into categories within each guide type.',
   },

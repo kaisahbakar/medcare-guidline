@@ -1,4 +1,4 @@
-import { BookOpen, ChevronRight } from 'lucide-react'
+import { MdMenuBook, MdChevronRight } from 'react-icons/md'
 import { Link, useParams } from 'react-router-dom'
 import { useCategory } from '../../lib/queries/useCategories'
 import { usePublishedManualsByCategory } from '../../lib/queries/useManuals'
@@ -53,7 +53,7 @@ function CategoryPage() {
       {/* Empty */}
       {!isLoading && !isError && (manualsQuery.data?.length ?? 0) === 0 && (
         <EmptyState
-          icon={BookOpen}
+          icon={MdMenuBook}
           title="No published manuals yet"
           message="Check back soon or try another category."
         />
@@ -78,7 +78,7 @@ function CategoryPage() {
                   </p>
                 )}
               </div>
-              <ChevronRight className="ml-4 size-4 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-600" />
+              <MdChevronRight className="ml-4 size-4 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </Link>
           ))}
         </section>

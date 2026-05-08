@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Eye, RotateCcw, X } from 'lucide-react'
+import { MdArrowBack, MdVisibility, MdRestore, MdClose } from 'react-icons/md'
 import { toast } from 'sonner'
 import { useManVersions, useManVersionSnapshot, useRestoreVersion } from '../../lib/queries/useManualVersions'
 import { Button } from '../../components/ui/Button'
@@ -29,7 +29,7 @@ function SnapshotPreviewModal({ versionId, versionNumber, onClose }) {
             onClick={onClose}
             className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
           >
-            <X className="size-5" />
+            <MdClose className="size-5" />
           </button>
         </div>
 
@@ -156,7 +156,7 @@ function VersionHistoryPage() {
             to={`/admin/manuals/${manualId}/edit`}
             className="flex shrink-0 items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800"
           >
-            <ArrowLeft className="size-3.5" />
+            <MdArrowBack className="size-3.5" />
             Back to Editor
           </Link>
           <h1 className="text-base font-semibold text-slate-900">Version History</h1>
@@ -252,11 +252,11 @@ function VersionRow({ version, isLast, onPreview, onRestore }) {
       </span>
       <div className="flex items-center gap-2">
         <Button variant="secondary" size="sm" onClick={onPreview}>
-          <Eye className="size-3.5" />
+          <MdVisibility className="size-3.5" />
           Preview
         </Button>
         <Button variant="secondary" size="sm" onClick={onRestore}>
-          <RotateCcw className="size-3.5" />
+          <MdRestore className="size-3.5" />
           Restore
         </Button>
       </div>

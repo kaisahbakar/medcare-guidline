@@ -9,7 +9,7 @@ import {
   createBlockEmptyDeleteExtension,
   initialSingleParagraphDoc,
 } from '../singleBlockTipTap'
-import { Info, AlertTriangle, CheckCircle, Lightbulb, AlertCircle, Palette } from 'lucide-react'
+import { MdInfo, MdWarning, MdCheckCircle, MdLightbulb, MdError, MdPalette } from 'react-icons/md'
 import clsx from 'clsx'
 import BlockToolbar from '../BlockToolbar'
 import { useSaveStatus } from '../../../contexts/SaveStatusContext'
@@ -24,11 +24,11 @@ import {
 const AUTOSAVE_DELAY = 800
 
 const ICONS = [
-  { name: 'Info', Icon: Info },
-  { name: 'AlertTriangle', Icon: AlertTriangle },
-  { name: 'CheckCircle', Icon: CheckCircle },
-  { name: 'Lightbulb', Icon: Lightbulb },
-  { name: 'AlertCircle', Icon: AlertCircle },
+  { name: 'Info', Icon: MdInfo },
+  { name: 'AlertTriangle', Icon: MdWarning },
+  { name: 'CheckCircle', Icon: MdCheckCircle },
+  { name: 'Lightbulb', Icon: MdLightbulb },
+  { name: 'AlertCircle', Icon: MdError },
 ]
 
 function getIcon(name) {
@@ -77,7 +77,7 @@ function CalloutPanelColorPicker({ block, onUpdate }) {
         title="Callout panel colours (inside the box)"
         className="flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-500 hover:bg-slate-200/80 hover:text-slate-700"
       >
-        <Palette className="size-3" />
+        <MdPalette className="size-3" />
         Panel
       </button>
       {open && (

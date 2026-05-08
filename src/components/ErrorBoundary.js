@@ -1,5 +1,5 @@
 import { Component } from 'react'
-import { RefreshCw } from 'lucide-react'
+import { MdRefresh } from 'react-icons/md'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -40,7 +40,7 @@ class ErrorBoundary extends Component {
             onClick={() => window.location.reload()}
             className="flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
           >
-            <RefreshCw className="size-4" />
+            <MdRefresh className="size-4" />
             Refresh page
           </button>
         </div>

@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
-import { FileQuestion } from 'lucide-react'
+import { MdHelp } from 'react-icons/md'
 
 function NotFoundPage() {
   return (
     <main className="flex min-h-[60vh] flex-col items-center justify-center gap-5 px-6 text-center animate-fade-in">
       <div className="flex size-16 items-center justify-center rounded-full bg-slate-100">
-        <FileQuestion className="size-8 text-slate-400" />
+        <MdHelp className="size-8 text-slate-400" />
       </div>
       <div className="space-y-1.5">
         <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">404</p>

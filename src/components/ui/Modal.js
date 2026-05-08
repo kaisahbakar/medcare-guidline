@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { X } from 'lucide-react'
+import { MdClose } from 'react-icons/md'
 import clsx from 'clsx'
 
 export function Modal({ open, onClose, title, children, className }) {
@@ -58,7 +58,7 @@ export function Modal({ open, onClose, title, children, className }) {
             className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
             aria-label="Close"
           >
-            <X className="size-4" />
+            <MdClose className="size-4" />
           </button>
         </div>
 

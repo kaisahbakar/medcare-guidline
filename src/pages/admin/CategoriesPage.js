@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { MdEdit, MdAdd, MdDelete } from 'react-icons/md'
 import { supabase } from '../../lib/supabase'
 import { useGuideTypes } from '../../lib/queries/useGuideTypes'
 import { Button } from '../../components/ui/Button'
@@ -220,7 +220,7 @@ function CategoriesPage() {
           </p>
         </div>
         <Button onClick={() => setAddOpen(true)}>
-          <Plus className="size-4" />
+          <MdAdd className="size-4" />
           Add Category
         </Button>
       </div>
@@ -262,7 +262,7 @@ function CategoriesPage() {
                         onClick={() => setEditTarget(cat)}
                         aria-label="Edit"
                       >
-                        <Pencil className="size-3.5" />
+                        <MdEdit className="size-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -271,7 +271,7 @@ function CategoriesPage() {
                         aria-label="Delete"
                         className="text-red-500 hover:bg-red-50 hover:text-red-600"
                       >
-                        <Trash2 className="size-3.5" />
+                        <MdDelete className="size-3.5" />
                       </Button>
                     </div>
                   </td>

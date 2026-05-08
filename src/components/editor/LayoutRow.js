@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { GripVertical, Trash2 } from 'lucide-react'
+import { MdDragIndicator, MdDelete } from 'react-icons/md'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import clsx from 'clsx'
@@ -116,7 +116,7 @@ function LayoutRow({
           className="cursor-grab rounded p-0.5 text-slate-300 hover:bg-slate-100 hover:text-slate-500 active:cursor-grabbing"
           aria-label="Drag to reorder row"
         >
-          <GripVertical className="size-4" />
+          <MdDragIndicator className="size-4" />
         </button>
 
         {/* Column count selector */}
@@ -148,7 +148,7 @@ function LayoutRow({
           aria-label="Delete row"
           className="text-red-400 hover:bg-red-50 hover:text-red-600"
         >
-          <Trash2 className="size-3.5" />
+          <MdDelete className="size-3.5" />
         </Button>
       </div>
 

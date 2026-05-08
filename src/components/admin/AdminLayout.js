@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
-import { BookOpen, FolderOpen, LayoutDashboard, Menu, Tag, X } from 'lucide-react'
+import { MdMenuBook, MdFolderOpen, MdDashboard, MdMenu, MdLocalOffer, MdClose } from 'react-icons/md'
 import { isAdmin } from '../../lib/auth'
 import clsx from 'clsx'
 import ModeToggleButton from '../ui/ModeToggleButton'
 
 const navItems = [
-  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/admin/manuals', label: 'Manuals', icon: BookOpen },
-  { to: '/admin/guide-types', label: 'Guide Types', icon: Tag },
-  { to: '/admin/categories', label: 'Categories', icon: FolderOpen },
+  { to: '/admin', label: 'Dashboard', icon: MdDashboard, end: true },
+  { to: '/admin/manuals', label: 'Manuals', icon: MdMenuBook },
+  { to: '/admin/guide-types', label: 'Guide Types', icon: MdLocalOffer },
+  { to: '/admin/categories', label: 'Categories', icon: MdFolderOpen },
 ]
 
 function NavList({ onNavigate }) {
@@ -81,7 +81,7 @@ function AdminLayout() {
           onClick={() => setMobileOpen(true)}
           className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100"
         >
-          <Menu className="size-5" />
+          <MdMenu className="size-5" />
         </button>
       </div>
 
@@ -103,7 +103,7 @@ function AdminLayout() {
                 onClick={() => setMobileOpen(false)}
                 className="rounded-lg p-1 text-slate-500 hover:bg-slate-100"
               >
-                <X className="size-4" />
+                <MdClose className="size-4" />
               </button>
             </div>
             <NavList onNavigate={() => setMobileOpen(false)} />

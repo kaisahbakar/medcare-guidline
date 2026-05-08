@@ -1,4 +1,4 @@
-import { RefreshCw } from 'lucide-react'
+import { MdRefresh } from 'react-icons/md'
 
 function ErrorCard({ title = 'Something went wrong', message, onRetry }) {
   return (
@@ -12,7 +12,7 @@ function ErrorCard({ title = 'Something went wrong', message, onRetry }) {
           onClick={onRetry}
           className="mt-3 flex items-center gap-1.5 text-xs font-medium text-red-700 underline hover:text-red-900"
         >
-          <RefreshCw className="size-3" />
+          <MdRefresh className="size-3" />
           Try again
         </button>
       )}

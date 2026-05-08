@@ -1,12 +1,13 @@
 # MedCare Guideline System
 
-A modern, platform for managing and reading medical guidelines. This system provides a streamlined experience for both medical professionals reading guidelines and administrators managing them.
+A modern web app for managing and reading medical guidelines.  
+It provides a streamlined experience for both healthcare staff reading manuals and administrators maintaining content.
 
-##  Features
+## Features
 
 ### Public Portal
-- **Guideline Reader:** Intuitive interface for reading medical manuals with a structured sidebar for easy navigation.
-- **Categorization:** Browse guidelines by Guide Type (e.g., Clinical, Administrative) and Category.
+- **Guideline Reader:** Read manuals with a structured sidebar for fast navigation.
+- **Categorization:** Browse guidelines by Guide Type and Category.
 - **Search & Filter:** Quickly find relevant guidelines.
 - **Dark Mode:** Support for both light and dark themes for comfortable reading in any environment.
 
@@ -24,15 +25,15 @@ A modern, platform for managing and reading medical guidelines. This system prov
 - **Data Fetching:** [TanStack Query (React Query)](https://tanstack.com/query/latest)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 - **Rich Text Editor:** [Tiptap](https://tiptap.dev/)
-- **Icons:** [Lucide React](https://lucide.dev/)
+- **Icons:** [Lucide React](https://lucide.dev/) and [React Icons](https://react-icons.github.io/react-icons/)
 - **Routing:** [React Router 7](https://reactrouter.com/)
 - **Drag & Drop:** [dnd-kit](https://dndkit.com/)
 
 ## 🏁 Getting Started
 
 ### Prerequisites
-- Node.js (Latest LTS recommended)
-- npm or yarn
+- Node.js (latest LTS recommended)
+- npm
 - A Supabase project
 
 ### Installation
@@ -49,19 +50,35 @@ A modern, platform for managing and reading medical guidelines. This system prov
     ```
 
 3.  **Set up environment variables:**
-    Create a `.env` file in the root directory and add your Supabase credentials:
+    Copy the example file, then provide real Supabase values:
+    ```bash
+    cp .env.example .env
+    ```
     ```env
     VITE_SUPABASE_URL=your_supabase_project_url
     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+    VITE_SUPABASE_MANUAL_MEDIA_BUCKET=manual-media
     ```
+    Both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are required.  
+    The app will fail fast on startup if either value is missing.
 
 4.  **Database Setup:**
-    Use the provided `supabase/seed.sql` to initialize your database schema and seed it with initial data.
+    Use `supabase/seed.sql` to initialize schema and seed baseline data.
 
 5.  **Run the development server:**
     ```bash
     npm run dev
     ```
+
+### Build
+```bash
+npm run build
+```
+
+## Deployment Notes
+
+- This is a single-page app (SPA), so route rewrites are required in production.
+- For Vercel, `vercel.json` is included and rewrites all routes to `index.html`.
 
 ## 📂 Project Structure
 
