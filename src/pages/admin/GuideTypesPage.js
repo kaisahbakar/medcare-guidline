@@ -41,12 +41,13 @@ function GuideTypeFormModal({ open, onClose, initial }) {
   const isEdit = !!initial
 
   const [form, setForm] = useState(initial ?? empty)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   function set(field) {
     return (e) => setForm((f) => ({ ...f, [field]: e.target.value }))
   }
 
-  const mutation = useMutation({
+  const saveMutation = useMutation({
     mutationFn: async (values) => {
       if (isEdit) {
         const { error } = await supabase
@@ -67,63 +68,12 @@ function GuideTypeFormModal({ open, onClose, initial }) {
     },
   })
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    mutation.mutate(form)
-  }
-
-  return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={isEdit ? 'Edit Guide Type' : 'Add Guide Type'}
-    >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          id="gt-name"
-          label="Name"
-          required
-          value={form.name}
-          onChange={set('name')}
-          placeholder="e.g. Patient Guide"
-        />
-        <Textarea
-          id="gt-desc"
-          label="Description"
-          value={form.description ?? ''}
-          onChange={set('description')}
-          placeholder="Short description (optional)"
-          rows={2}
-        />
-
-        {mutation.isError && (
-          <p className="text-sm text-red-600">{mutation.error.message}</p>
-        )}
-
-        <div className="flex justify-end gap-2 pt-1">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? 'Saving…' : isEdit ? 'Save changes' : 'Add guide type'}
-          </Button>
-        </div>
-      </form>
-    </Modal>
-  )
-}
-
-// ── Delete confirmation modal ─────────────────────────────────────────────────
-
-function DeleteGuideTypeModal({ open, onClose, guideType }) {
-  const qc = useQueryClient()
-
-  const mutation = useMutation({
+  const deleteMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
         .from('user_guide_type')
         .delete()
-        .eq('id', guideType.id)
+        .eq('id', initial.id)
       if (error) throw error
     },
     onSuccess: () => {
@@ -133,33 +83,86 @@ function DeleteGuideTypeModal({ open, onClose, guideType }) {
     },
   })
 
+  function handleSubmit(e) {
+    e.preventDefault()
+    saveMutation.mutate(form)
+  }
+
   return (
-    <Modal open={open} onClose={onClose} title="Delete Guide Type">
-      <div className="space-y-4">
-        <p className="text-sm text-slate-700">
-          Are you sure you want to delete{' '}
-          <strong className="font-semibold">{guideType?.name}</strong>? This will
-          also remove all associated categories and manuals.
-        </p>
-
-        {mutation.isError && (
-          <p className="text-sm text-red-600">{mutation.error.message}</p>
-        )}
-
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            disabled={mutation.isPending}
-            onClick={() => mutation.mutate()}
-          >
-            {mutation.isPending ? 'Deleting…' : 'Delete'}
-          </Button>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? 'Edit Guide Type' : 'Add Guide Type'}
+    >
+      {confirmDelete ? (
+        <div className="space-y-4">
+          <p className="text-sm text-slate-700">
+            Are you sure you want to delete{' '}
+            <strong className="font-semibold">{initial?.name}</strong>? This will
+            also remove all associated categories and manuals.
+          </p>
+          {deleteMutation.isError && (
+            <p className="text-sm text-red-600">{deleteMutation.error.message}</p>
+          )}
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="secondary" onClick={() => setConfirmDelete(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              disabled={deleteMutation.isPending}
+              onClick={() => deleteMutation.mutate()}
+            >
+              {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+            </Button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            id="gt-name"
+            label="Name"
+            required
+            value={form.name}
+            onChange={set('name')}
+            placeholder="e.g. Patient Guide"
+          />
+          <Textarea
+            id="gt-desc"
+            label="Description"
+            value={form.description ?? ''}
+            onChange={set('description')}
+            placeholder="Short description (optional)"
+            rows={2}
+          />
+
+          {saveMutation.isError && (
+            <p className="text-sm text-red-600">{saveMutation.error.message}</p>
+          )}
+
+          <div className="flex items-center justify-between pt-1">
+            {isEdit && (
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(true)}
+                className="flex items-center gap-1.5 text-sm text-red-600 hover:text-red-700"
+              >
+                <MdDelete className="size-4" />
+                Delete
+              </button>
+            )}
+            <div className={`flex gap-2 ${isEdit ? '' : 'ml-auto'}`}>
+              <Button type="button" variant="secondary" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={saveMutation.isPending}>
+                {saveMutation.isPending ? 'Saving…' : isEdit ? 'Save changes' : 'Add guide type'}
+              </Button>
+            </div>
+          </div>
+        </form>
+      )}
     </Modal>
   )
 }
@@ -170,8 +173,7 @@ function GuideTypesPage() {
   const { data: guideTypes, isLoading, isError, error } = useGuideTypesAdmin()
 
   const [addOpen, setAddOpen] = useState(false)
-  const [editTarget, setEditTarget] = useState(null) // guideType object
-  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [editTarget, setEditTarget] = useState(null)
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-8 py-10">
@@ -227,15 +229,6 @@ function GuideTypesPage() {
                       >
                         <MdEdit className="size-3.5" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeleteTarget(gt)}
-                        aria-label="Delete"
-                        className="text-red-500 hover:bg-red-50 hover:text-red-600"
-                      >
-                        <MdDelete className="size-3.5" />
-                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -251,11 +244,6 @@ function GuideTypesPage() {
         open={!!editTarget}
         onClose={() => setEditTarget(null)}
         initial={editTarget}
-      />
-      <DeleteGuideTypeModal
-        open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        guideType={deleteTarget}
       />
     </div>
   )

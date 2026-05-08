@@ -25,7 +25,7 @@ It provides a streamlined experience for both healthcare staff reading manuals a
 - **Data Fetching:** [TanStack Query (React Query)](https://tanstack.com/query/latest)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 - **Rich Text Editor:** [Tiptap](https://tiptap.dev/)
-- **Icons:** [Lucide React](https://lucide.dev/) and [React Icons](https://react-icons.github.io/react-icons/)
+- **Icons:** [React Icons](https://react-icons.github.io/react-icons/)
 - **Routing:** [React Router 7](https://reactrouter.com/)
 - **Drag & Drop:** [dnd-kit](https://dndkit.com/)
 

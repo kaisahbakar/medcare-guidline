@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { MdEdit, MdAdd } from 'react-icons/md'
 import { supabase } from '../../lib/supabase'
 import { useGuideTypes } from '../../lib/queries/useGuideTypes'
 import { useAllCategories } from '../../lib/queries/useCategories'
@@ -154,70 +154,6 @@ function CreateManualModal({ open, onClose, guideTypes, categories }) {
   )
 }
 
-// ── Delete confirmation ───────────────────────────────────────────────────────
-
-function DeleteManualModal({ open, onClose, manual }) {
-  const qc = useQueryClient()
-
-  const mutation = useMutation({
-    mutationFn: async () => {
-      // Delete child rows first in case DB cascade isn't configured
-      const { data: rows } = await supabase
-        .from('layout_row')
-        .select('id')
-        .eq('manual_id', manual.id)
-
-      if (rows?.length) {
-        const rowIds = rows.map((r) => r.id)
-        await supabase.from('manual_block').delete().in('layout_row_id', rowIds)
-        await supabase.from('layout_row').delete().in('id', rowIds)
-      }
-
-      await supabase.from('manual_version').delete().eq('manual_id', manual.id)
-
-      const { error } = await supabase
-        .from('manual')
-        .delete()
-        .eq('id', manual.id)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['manuals'] })
-      onClose()
-    },
-  })
-
-  return (
-    <Modal open={open} onClose={onClose} title="Delete Manual">
-      <div className="space-y-4">
-        <p className="text-sm text-slate-700">
-          Are you sure you want to delete{' '}
-          <strong className="font-semibold">{manual?.title}</strong>? All
-          layout rows, blocks, and versions will be permanently removed.
-        </p>
-
-        {mutation.isError && (
-          <p className="text-sm text-red-600">{mutation.error.message}</p>
-        )}
-
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            disabled={mutation.isPending}
-            onClick={() => mutation.mutate()}
-          >
-            {mutation.isPending ? 'Deleting…' : 'Delete'}
-          </Button>
-        </div>
-      </div>
-    </Modal>
-  )
-}
-
 // ── Inline status change ──────────────────────────────────────────────────────
 
 const STATUS_OPTIONS = ['draft', 'published', 'archived']
@@ -268,7 +204,6 @@ function ManualListPage() {
   const categoriesQuery = useAllCategories()
 
   const [createOpen, setCreateOpen] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState(null)
 
   // Filters
   const [filterGuideType, setFilterGuideType] = useState('')
@@ -318,7 +253,7 @@ function ManualListPage() {
           </p>
         </div>
         <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="size-4" />
+          <MdAdd className="size-4" />
           Create Manual
         </Button>
       </div>
@@ -440,16 +375,7 @@ function ManualListPage() {
                           onClick={() => navigate(`/admin/manuals/${manual.id}/edit`)}
                           aria-label="Edit"
                         >
-                          <Pencil className="size-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeleteTarget(manual)}
-                          aria-label="Delete"
-                          className="text-red-500 hover:bg-red-50 hover:text-red-600"
-                        >
-                          <Trash2 className="size-3.5" />
+                          <MdEdit className="size-3.5" />
                         </Button>
                       </div>
                     </td>
@@ -466,11 +392,6 @@ function ManualListPage() {
         onClose={() => setCreateOpen(false)}
         guideTypes={guideTypesQuery.data}
         categories={categoriesQuery.data}
-      />
-      <DeleteManualModal
-        open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        manual={deleteTarget}
       />
     </div>
   )

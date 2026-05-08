@@ -49,20 +49,23 @@ function CategoryFormModal({ open, onClose, initial, guideTypes }) {
   })
 
   const [form, setForm] = useState(getInitialForm)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   useEffect(() => {
     if (!open) {
       setForm({ name: '', guide_type_id: '' })
+      setConfirmDelete(false)
       return
     }
     setForm(getInitialForm())
+    setConfirmDelete(false)
   }, [open, initial])
 
   function set(field) {
     return (e) => setForm((f) => ({ ...f, [field]: e.target.value }))
   }
 
-  const mutation = useMutation({
+  const saveMutation = useMutation({
     mutationFn: async (values) => {
       const payload = {
         name: values.name,
@@ -85,9 +88,24 @@ function CategoryFormModal({ open, onClose, initial, guideTypes }) {
     },
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('category')
+        .delete()
+        .eq('id', initial.id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['categories'] })
+      qc.invalidateQueries({ queryKey: ['manuals'] })
+      onClose()
+    },
+  })
+
   function handleSubmit(e) {
     e.preventDefault()
-    mutation.mutate(form)
+    saveMutation.mutate(form)
   }
 
   if (!open) return null
@@ -98,95 +116,82 @@ function CategoryFormModal({ open, onClose, initial, guideTypes }) {
       onClose={onClose}
       title={isEdit ? 'Edit Category' : 'Add Category'}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Select
-          id="cat-guide-type"
-          label="Guide Type"
-          required
-          value={form.guide_type_id}
-          onChange={set('guide_type_id')}
-        >
-          <option value="">Select a guide type…</option>
-          {guideTypes?.map((gt) => (
-            <option key={gt.id} value={gt.id}>
-              {gt.name}
-            </option>
-          ))}
-        </Select>
-
-        <Input
-          id="cat-name"
-          label="Category Name"
-          required
-          value={form.name}
-          onChange={set('name')}
-          placeholder="e.g. Getting Started"
-        />
-
-        {mutation.isError && (
-          <p className="text-sm text-red-600">{mutation.error.message}</p>
-        )}
-
-        <div className="flex justify-end gap-2 pt-1">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? 'Saving…' : isEdit ? 'Save changes' : 'Add category'}
-          </Button>
+      {confirmDelete ? (
+        <div className="space-y-4">
+          <p className="text-sm text-slate-700">
+            Are you sure you want to delete{' '}
+            <strong className="font-semibold">{initial?.name}</strong>? All
+            manuals in this category will also be removed.
+          </p>
+          {deleteMutation.isError && (
+            <p className="text-sm text-red-600">{deleteMutation.error.message}</p>
+          )}
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="secondary" onClick={() => setConfirmDelete(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              disabled={deleteMutation.isPending}
+              onClick={() => deleteMutation.mutate()}
+            >
+              {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+            </Button>
+          </div>
         </div>
-      </form>
-    </Modal>
-  )
-}
-
-// ── Delete confirmation ───────────────────────────────────────────────────────
-
-function DeleteCategoryModal({ open, onClose, category }) {
-  const qc = useQueryClient()
-
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const { error } = await supabase
-        .from('category')
-        .delete()
-        .eq('id', category.id)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['categories'] })
-      qc.invalidateQueries({ queryKey: ['manuals'] })
-      onClose()
-    },
-  })
-
-  return (
-    <Modal open={open} onClose={onClose} title="Delete Category">
-      <div className="space-y-4">
-        <p className="text-sm text-slate-700">
-          Are you sure you want to delete{' '}
-          <strong className="font-semibold">{category?.name}</strong>? All
-          manuals in this category will also be removed.
-        </p>
-
-        {mutation.isError && (
-          <p className="text-sm text-red-600">{mutation.error.message}</p>
-        )}
-
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            disabled={mutation.isPending}
-            onClick={() => mutation.mutate()}
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Select
+            id="cat-guide-type"
+            label="Guide Type"
+            required
+            value={form.guide_type_id}
+            onChange={set('guide_type_id')}
           >
-            {mutation.isPending ? 'Deleting…' : 'Delete'}
-          </Button>
-        </div>
-      </div>
+            <option value="">Select a guide type…</option>
+            {guideTypes?.map((gt) => (
+              <option key={gt.id} value={gt.id}>
+                {gt.name}
+              </option>
+            ))}
+          </Select>
+
+          <Input
+            id="cat-name"
+            label="Category Name"
+            required
+            value={form.name}
+            onChange={set('name')}
+            placeholder="e.g. Getting Started"
+          />
+
+          {saveMutation.isError && (
+            <p className="text-sm text-red-600">{saveMutation.error.message}</p>
+          )}
+
+          <div className="flex items-center justify-between pt-1">
+            {isEdit && (
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(true)}
+                className="flex items-center gap-1.5 text-sm text-red-600 hover:text-red-700"
+              >
+                <MdDelete className="size-4" />
+                Delete
+              </button>
+            )}
+            <div className={`flex gap-2 ${isEdit ? '' : 'ml-auto'}`}>
+              <Button type="button" variant="secondary" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={saveMutation.isPending}>
+                {saveMutation.isPending ? 'Saving…' : isEdit ? 'Save changes' : 'Add category'}
+              </Button>
+            </div>
+          </div>
+        </form>
+      )}
     </Modal>
   )
 }
@@ -199,7 +204,6 @@ function CategoriesPage() {
 
   const [addOpen, setAddOpen] = useState(false)
   const [editTarget, setEditTarget] = useState(null)
-  const [deleteTarget, setDeleteTarget] = useState(null)
 
   const guideTypeMap = Object.fromEntries(
     (guideTypesQuery.data ?? []).map((gt) => [gt.id, gt.name]),
@@ -264,15 +268,6 @@ function CategoriesPage() {
                       >
                         <MdEdit className="size-3.5" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeleteTarget(cat)}
-                        aria-label="Delete"
-                        className="text-red-500 hover:bg-red-50 hover:text-red-600"
-                      >
-                        <MdDelete className="size-3.5" />
-                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -293,11 +288,6 @@ function CategoriesPage() {
         onClose={() => setEditTarget(null)}
         initial={editTarget}
         guideTypes={guideTypesQuery.data}
-      />
-      <DeleteCategoryModal
-        open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        category={deleteTarget}
       />
     </div>
   )

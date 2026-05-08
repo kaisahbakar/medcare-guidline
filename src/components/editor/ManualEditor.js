@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { MdWarning, MdArrowBack, MdVisibility, MdHistory, MdDesktopWindows, MdAdd, MdClose } from 'react-icons/md'
+import { Link, useNavigate } from 'react-router-dom'
+import { MdWarning, MdArrowBack, MdVisibility, MdHistory, MdDesktopWindows, MdAdd, MdClose, MdDelete } from 'react-icons/md'
 import ManualReader from '../reader/ManualReader'
 import ReaderBlock from '../reader/ReaderBlock'
 import {
@@ -108,6 +108,71 @@ function SaveIndicator() {
   )
 }
 
+// ── Delete manual modal ────────────────────────────────────────────────────────
+
+function DeleteManualModal({ open, manualId, title, onClose, onDeleted }) {
+  const qc = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const { data: rows } = await supabase
+        .from('layout_row')
+        .select('id')
+        .eq('manual_id', manualId)
+
+      if (rows?.length) {
+        const rowIds = rows.map((r) => r.id)
+        await supabase.from('manual_block').delete().in('layout_row_id', rowIds)
+        await supabase.from('layout_row').delete().in('id', rowIds)
+      }
+
+      await supabase.from('manual_version').delete().eq('manual_id', manualId)
+
+      const { error } = await supabase.from('manual').delete().eq('id', manualId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['manuals'] })
+      onDeleted()
+    },
+  })
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+        <h2 className="text-base font-semibold text-slate-900">Delete manual?</h2>
+        <p className="mt-2 text-sm text-slate-600">
+          <strong className="font-medium">{title || 'This manual'}</strong> and all its
+          layout rows, blocks, and version history will be permanently deleted.
+        </p>
+
+        {mutation.isError && (
+          <p className="mt-2 text-sm text-red-600">{mutation.error.message}</p>
+        )}
+
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            onClick={onClose}
+            disabled={mutation.isPending}
+            className="rounded-md border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:border-slate-300 hover:text-slate-900 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending}
+            className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          >
+            {mutation.isPending ? 'Deleting…' : 'Delete manual'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Preview modal ──────────────────────────────────────────────────────────────
 
 function PreviewModal({ manual, rows, onClose }) {
@@ -201,6 +266,7 @@ function PreviewModal({ manual, rows, onClose }) {
 function ManualEditorInner({ manualId, data }) {
   const { manual, rows } = data
   const { status: saveStatus, notifySaving, notifySaved, notifyChange } = useSaveStatus()
+  const navigate = useNavigate()
 
   const addRow = useAddRow(manualId)
   const updateRow = useUpdateRow(manualId)
@@ -226,6 +292,7 @@ function ManualEditorInner({ manualId, data }) {
   }
 
   const [showPreview, setShowPreview] = useState(false)
+  const [showDelete, setShowDelete] = useState(false)
 
   const [titleDraft, setTitleDraft] = useState(manual.title ?? '')
   const titleTimer = useRef(null)
@@ -324,6 +391,13 @@ function ManualEditorInner({ manualId, data }) {
         onClose={() => setShowPreview(false)}
       />
     )}
+    <DeleteManualModal
+      open={showDelete}
+      manualId={manualId}
+      title={titleDraft}
+      onClose={() => setShowDelete(false)}
+      onDeleted={() => navigate('/admin/manuals')}
+    />
     <div className="flex min-h-screen flex-col bg-slate-50">
       {/* Stale banner */}
       {stale && (
@@ -379,6 +453,13 @@ function ManualEditorInner({ manualId, data }) {
             >
               <MdVisibility className="size-3.5" />
               Preview
+            </button>
+            <button
+              onClick={() => setShowDelete(true)}
+              className="flex items-center gap-1.5 rounded-md border border-red-200 bg-white px-3 py-1.5 text-sm text-red-600 hover:border-red-300 hover:bg-red-50"
+            >
+              <MdDelete className="size-3.5" />
+              Delete
             </button>
             <Button
               variant="secondary"

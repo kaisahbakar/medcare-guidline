@@ -61,7 +61,7 @@ function GuideTypePage() {
 
       {/* Empty */}
       {!isLoading && !isError && (categoriesQuery.data?.length ?? 0) === 0 && (
-        <EmptyState icon={FolderOpen} message="No categories in this guide type yet." />
+        <EmptyState icon={MdFolderOpen} message="No categories in this guide type yet." />
       )}
 
       {/* Cards */}
@@ -86,7 +86,7 @@ function GuideTypePage() {
                       </p>
                     )}
                   </div>
-                  <ChevronRight className="mt-0.5 size-4 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-600" />
+                  <MdChevronRight className="mt-0.5 size-4 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-600" />
                 </div>
                 <p className="mt-4 text-xs font-medium text-slate-400">
                   {count} published manual{count !== 1 ? 's' : ''}
