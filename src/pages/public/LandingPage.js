@@ -12,7 +12,7 @@ function LandingPage() {
 
   function getCategoryCount(guideTypeId) {
     if (!Array.isArray(allCategoriesQuery.data)) return 0
-    return allCategoriesQuery.data.filter((c) => Number(c.guide_type_id) === Number(guideTypeId)).length
+    return allCategoriesQuery.data.filter((c) => String(c.guide_type_id) === String(guideTypeId)).length
   }
 
   return (

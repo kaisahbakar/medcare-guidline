@@ -52,7 +52,7 @@ function CreateManualModal({ open, onClose, guideTypes, categories }) {
   }
 
   const filteredCategories = categories?.filter((c) =>
-    Number(getCategoryGuideTypeId(c)) === Number(form.guide_type_id),
+    String(getCategoryGuideTypeId(c)) === String(form.guide_type_id),
   ) ?? []
 
   const mutation = useMutation({
@@ -287,13 +287,13 @@ function ManualListPage() {
   // Categories for the filter dropdown — if a guide type filter is active,
   // only show categories belonging to that guide type.
   const filteredCategoriesForDropdown = (categoriesQuery.data ?? []).filter(
-    (c) => !filterGuideType || getCategoryGuideTypeId(c) === filterGuideType,
+    (c) => !filterGuideType || String(getCategoryGuideTypeId(c)) === String(filterGuideType),
   )
 
   const manuals = (manualsQuery.data ?? []).filter((m) => {
     const category = categoryMap[m.category_id]
-    if (filterGuideType && getCategoryGuideTypeId(category) !== filterGuideType) return false
-    if (filterCategory && m.category_id !== filterCategory) return false
+    if (filterGuideType && String(getCategoryGuideTypeId(category)) !== String(filterGuideType)) return false
+    if (filterCategory && String(m.category_id) !== String(filterCategory)) return false
     if (filterStatus && m.status !== filterStatus) return false
     return true
   })

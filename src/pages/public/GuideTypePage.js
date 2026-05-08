@@ -20,7 +20,7 @@ function GuideTypePage() {
   function getPublishedManualCount(categoryId) {
     if (!Array.isArray(allManualsQuery.data)) return 0
     return allManualsQuery.data.filter(
-      (m) => Number(m.category_id) === Number(categoryId) && m.status === 'published',
+      (m) => String(m.category_id) === String(categoryId) && m.status === 'published',
     ).length
   }
 
