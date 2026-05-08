@@ -53,30 +53,29 @@ function ManualReaderPage() {
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 animate-fade-in">
-      <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1">
+      <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-400">
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+          className="flex items-center gap-1 hover:text-blue-600"
         >
-          <MdArrowBack className="size-4 shrink-0" />
+          <MdArrowBack className="size-3.5 shrink-0" />
           Back
         </button>
         {categoryId != null && categoryId !== '' && (
-          <Link
-            to={`/category/${categoryId}`}
-            className="text-sm font-medium text-slate-500 transition hover:text-slate-800"
-          >
-            Category
-          </Link>
+          <>
+            <span>·</span>
+            <Link
+              to={`/category/${categoryId}`}
+              className="hover:text-blue-600"
+            >
+              Category
+            </Link>
+          </>
         )}
-        <Link
-          to="/"
-          className="text-sm font-medium text-slate-500 transition hover:text-slate-800"
-        >
-          Home
-        </Link>
-      </div>
+        <span>·</span>
+        <Link to="/" className="hover:text-blue-600">Home</Link>
+      </nav>
       <div className="flex flex-col gap-6 md:flex-row md:gap-8">
         <ReaderSidebar
           categoryId={manualQuery.data.category_id}

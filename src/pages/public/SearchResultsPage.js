@@ -35,22 +35,18 @@ function SearchResultsPage() {
   return (
     <main className="mx-auto w-full max-w-3xl space-y-8 px-4 py-10 sm:px-6 animate-fade-in">
       <header className="space-y-3">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+        <nav className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-400">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+            className="flex items-center gap-1 hover:text-blue-600"
           >
-            <MdArrowBack className="size-4 shrink-0" />
+            <MdArrowBack className="size-3.5 shrink-0" />
             Back
           </button>
-          <Link
-            to="/"
-            className="text-sm font-medium text-slate-500 transition hover:text-slate-800"
-          >
-            Home
-          </Link>
-        </div>
+          <span>·</span>
+          <Link to="/" className="hover:text-blue-600">Home</Link>
+        </nav>
         <div className="space-y-1">
         <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
           Search results
@@ -117,14 +113,14 @@ function SearchResultsPage() {
                 <Link
                   key={manual.id}
                   to={`/manual/${manual.id}`}
-                  className="group block rounded-xl border border-slate-200 bg-white px-5 py-4 transition hover:border-slate-300 hover:shadow-sm"
+                  className="group block rounded-xl border border-slate-200 bg-white px-5 py-4 transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
                 >
                   {(guideName || catName) && (
                     <p className="mb-1 text-xs font-medium text-slate-400">
                       {[guideName, catName].filter(Boolean).join(' › ')}
                     </p>
                   )}
-                  <p className="font-semibold text-slate-900 group-hover:text-slate-700">
+                  <p className="font-semibold text-slate-900 group-hover:text-blue-700">
                     <Highlight text={manual.title} query={q} />
                   </p>
                   {manual.summary && (

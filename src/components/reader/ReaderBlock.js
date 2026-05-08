@@ -19,7 +19,7 @@ function renderTipTapHTML(content_json) {
   }
 }
 
-// ── Callout icon map ───────────────────────────────────────────────────────────
+// ── Callout icon + label maps ──────────────────────────────────────────────────
 
 const CALLOUT_ICONS = {
   Info: MdInfo,
@@ -27,6 +27,14 @@ const CALLOUT_ICONS = {
   CheckCircle: MdCheckCircle,
   Lightbulb: MdLightbulb,
   AlertCircle: MdError,
+}
+
+const CALLOUT_LABELS = {
+  Info: 'Note',
+  AlertTriangle: 'Warning',
+  CheckCircle: 'Done',
+  Lightbulb: 'Tip',
+  AlertCircle: 'Alert',
 }
 
 // ── Prose wrapper (TipTap HTML or legacy plain text) ──────────────────────────
@@ -136,6 +144,7 @@ function ReaderBlock({ block }) {
   if (block?.block_type === 'callout') {
     const iconName = block?.metadata_json?.icon ?? 'Info'
     const Icon = CALLOUT_ICONS[iconName] ?? MdInfo
+    const label = CALLOUT_LABELS[iconName] ?? 'Note'
     const panel = getCalloutPanelColors(block?.metadata_json)
     const hasPanelBg = Boolean(panel.background)
     const hasPanelText = Boolean(panel.text)
@@ -151,19 +160,28 @@ function ReaderBlock({ block }) {
       <div className="min-w-0" style={blockStyle}>
         <div
           className={clsx(
-            'rounded-lg border border-l-4 px-4 py-3',
-            !hasPanelBg && 'border-blue-200 border-l-blue-500 bg-blue-50',
-            hasPanelBg && 'border-slate-300/40',
+            'rounded-lg border-l-4 px-4 py-3',
+            !hasPanelBg && 'border-blue-500 bg-blue-50',
+            hasPanelBg && 'border-slate-400/60',
           )}
           style={panelStyle}
         >
-          <div className="mb-1 flex items-center gap-2">
+          <div className="mb-1.5 flex items-center gap-1.5">
             <Icon
               className={clsx(
                 'size-4 shrink-0',
                 hasPanelText ? 'text-current opacity-80' : 'text-blue-600',
               )}
             />
+            <span
+              className={clsx(
+                'text-sm font-semibold',
+                !hasPanelText && 'text-blue-800',
+                hasPanelText && 'text-inherit',
+              )}
+            >
+              {label}:
+            </span>
           </div>
           <div
             className={clsx(

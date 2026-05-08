@@ -62,7 +62,8 @@ function ReaderSidebar({ categoryId }) {
       {/* Desktop: sticky sidebar */}
       <aside className="hidden w-56 shrink-0 md:block">
         <div className="sticky top-20 rounded-xl border border-slate-200 bg-white p-4">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <MdMenuBook className="size-3.5 shrink-0" />
             In this category
           </p>
           {nav}

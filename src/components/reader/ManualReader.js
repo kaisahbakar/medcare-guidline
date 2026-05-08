@@ -45,8 +45,8 @@ function ManualReader({ manualId }) {
   }
 
   return (
-    <article className="w-full space-y-8 rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
-      <header className="space-y-2 border-b border-slate-100 pb-6">
+    <article className="w-full rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+      <header className="space-y-1.5 border-b border-slate-100 pb-4">
         <h1 className="text-2xl font-bold leading-tight text-slate-900 sm:text-3xl">
           {data.manual.title}
         </h1>
@@ -56,27 +56,29 @@ function ManualReader({ manualId }) {
       </header>
 
       {data.rows.length === 0 ? (
-        <p className="text-sm text-slate-400">This manual has no content yet.</p>
+        <p className="mt-5 text-sm text-slate-400">This manual has no content yet.</p>
       ) : (
-        data.rows.map((row) => (
-          <section
-            key={row.id}
-            className="grid gap-6"
-            style={{
-              gridTemplateColumns: gridTemplateColumnsFromFractions(
-                normalizeColumnFractions(row.column_width_fr, row.column_count),
-              ),
-            }}
-          >
-            {row.columns.map((column) => (
-              <div key={`${row.id}-${column.index}`} className="space-y-4">
-                {column.blocks.map((block) => (
-                  <ReaderBlock key={block.id} block={block} />
-                ))}
-              </div>
-            ))}
-          </section>
-        ))
+        <div className="mt-5 space-y-5">
+          {data.rows.map((row) => (
+            <section
+              key={row.id}
+              className="grid gap-6"
+              style={{
+                gridTemplateColumns: gridTemplateColumnsFromFractions(
+                  normalizeColumnFractions(row.column_width_fr, row.column_count),
+                ),
+              }}
+            >
+              {row.columns.map((column) => (
+                <div key={`${row.id}-${column.index}`} className="min-w-0 space-y-4">
+                  {column.blocks.map((block) => (
+                    <ReaderBlock key={block.id} block={block} />
+                  ))}
+                </div>
+              ))}
+            </section>
+          ))}
+        </div>
       )}
     </article>
   )

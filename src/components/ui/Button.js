@@ -5,7 +5,7 @@ const base =
 
 const variants = {
   primary:
-    'bg-slate-900 text-white hover:bg-slate-700 focus-visible:ring-slate-900',
+    'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-600',
   secondary:
     'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 focus-visible:ring-slate-400',
   danger:

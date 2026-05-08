@@ -1,5 +1,5 @@
 import { MdMenuBook, MdChevronRight } from 'react-icons/md'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useCategory } from '../../lib/queries/useCategories'
 import { usePublishedManualsByCategory } from '../../lib/queries/useManuals'
 import { ListItemSkeleton } from '../../components/ui/Skeleton'
@@ -8,6 +8,7 @@ import EmptyState from '../../components/ui/EmptyState'
 
 function CategoryPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const categoryQuery = useCategory(id)
   const manualsQuery = usePublishedManualsByCategory(id)
 
@@ -15,15 +16,33 @@ function CategoryPage() {
   const isError = categoryQuery.isError || manualsQuery.isError
   const error = categoryQuery.error || manualsQuery.error
 
+  const guideTypeId = categoryQuery.data?.guide_type_id
+
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-10 px-4 py-12 sm:px-6 animate-fade-in">
+    <main className="mx-auto w-full max-w-3xl space-y-8 px-4 py-12 sm:px-6 animate-fade-in">
       <header className="space-y-1.5">
-        <Link
-          to={-1}
-          className="text-xs font-medium text-slate-400 hover:text-slate-600"
-        >
-          ← Back
-        </Link>
+        <nav className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1 hover:text-blue-600"
+          >
+            ← Back
+          </button>
+          {guideTypeId && (
+            <>
+              <span>·</span>
+              <Link
+                to={`/guide-type/${guideTypeId}`}
+                className="hover:text-blue-600"
+              >
+                Guide Type
+              </Link>
+            </>
+          )}
+          <span>·</span>
+          <Link to="/" className="hover:text-blue-600">Home</Link>
+        </nav>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">
           {categoryQuery.data?.name ?? (isLoading ? '' : 'Category')}
         </h1>
@@ -66,10 +85,10 @@ function CategoryPage() {
             <Link
               key={manual.id}
               to={`/manual/${manual.id}`}
-              className="group flex items-center justify-between rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition duration-200 hover:border-slate-300 hover:shadow-md"
+              className="group flex items-center justify-between rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
             >
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-slate-900 group-hover:text-slate-700">
+                <p className="font-semibold text-slate-900 group-hover:text-blue-700">
                   {manual.title}
                 </p>
                 {manual.summary && (
@@ -78,7 +97,7 @@ function CategoryPage() {
                   </p>
                 )}
               </div>
-              <MdChevronRight className="ml-4 size-4 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-600" />
+              <MdChevronRight className="ml-4 size-4 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-blue-500" />
             </Link>
           ))}
         </section>
